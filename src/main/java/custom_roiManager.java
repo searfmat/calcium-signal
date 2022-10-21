@@ -51,6 +51,8 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         panel = new Panel();
         addTextFields();
         addButton("Multi Measure");
+        addButton("Outlier Analysis");
+        System.out.println("Button created");
 
         add(panel);
 
@@ -142,7 +144,10 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
 
             rm.close();
             setVisible(false);
-            peakFinding();
+            runPythonScripts(1);
+        } else if (command.equals("Outlier Analysis")) {
+            System.out.println("Running command");
+            runPythonScripts(1);
         }
     }
 
@@ -151,15 +156,18 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         rm.runCommand("Show All");
     }
 
-    public void peakFinding(){
+    public void runPythonScripts(int val){
         /*
-        -- PEAK FINDING --
+            Run external scripts.
+            val = 0: peakScript
+            val = 1: histogramScript
          */
         try {
             // Attempt to find the preferred command or path for python 3
             String systemPath = System.getenv("PATH");
             String[] pathLines = systemPath.split(":");
             String exePath = "python";
+            String fileName;
             String os = System.getProperty("os.name");
 
             if (os.contains("Windows")) {
@@ -189,7 +197,13 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             }
 
             // RELATIVE TO LOCATION OF FIJI EXECUTABLE
-            ProcessBuilder processBuilder = new ProcessBuilder(exePath, PYTHONSCRIPT_PATH + "/peakscript.py");
+            if(val == 0)
+                fileName = "/peakscript.py";
+            else
+                fileName = "/histogramscript.py";
+            
+            ProcessBuilder processBuilder = new ProcessBuilder(exePath, PYTHONSCRIPT_PATH + fileName);
+            System.out.println("Proc builder running with value of " + fileName + " path of "+ exePath);
             processBuilder.redirectErrorStream(true);
 
             Process process = processBuilder.start();
@@ -199,16 +213,19 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             while ((line = errout.readLine()) != null) {
                 IJ.log(line);
             }
+            process.waitFor();
+            process.destroy();
 
             // Use for debugging only
-            /*
+            /* 
             BufferedReader input = new BufferedReader(new InputStreamReader(process.getInputStream()));
             String line2;
 
             while ((line2 = input.readLine()) != null) {
                 IJ.log(line2);
             }
-             */
+            */
+            
 
         } catch (Exception ex) {
             IJ.log(ex.getMessage());
@@ -216,4 +233,3 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     }
 
 }
-

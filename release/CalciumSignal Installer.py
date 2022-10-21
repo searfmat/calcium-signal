@@ -137,6 +137,13 @@ class PageOne(tk.Frame):
             self.label.configure(text="Could not find peakscript.py.\nBe sure that it is inside the release folder and try again.")
             self.update_idletasks()
             return
+        
+        try:
+            os.replace("histogramscript.py", os.path.join(pythonscript, "peakscript.py"))
+        except FileNotFoundError:
+            self.label.configure(text="Could not find histogramscript.py.\nBe sure that it is inside the release folder and try again.")
+            self.update_idletasks()
+            return
 
         time.sleep(0.5)
         self.progress['value'] = 75
