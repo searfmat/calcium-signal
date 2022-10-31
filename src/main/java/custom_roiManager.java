@@ -9,6 +9,8 @@ import ij.plugin.frame.RoiManager;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
+
+import java.io.FileReader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -20,13 +22,14 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.*;
 
 import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
 
 public class custom_roiManager extends PlugInFrame implements ActionListener {
 
     private final String PYTHONSCRIPT_PATH = "plugins/CalciumSignal/pythonscript";
-
+    private final String EDGE_DATA_PATH = "plugins/CalciumSignal/edge_data";
     Panel panel;
     RoiManager rm;
     int cellMin;
@@ -52,8 +55,9 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         addTextFields();
         addButton("Multi Measure");
         addButton("Outlier Analysis");
-        System.out.println("Button created");
-
+        addButton("RC 1 STD");
+        addButton("RC 2 STD");
+        addButton("RC 3 STD");
         add(panel);
 
         pack();
@@ -141,19 +145,69 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             } catch (IOException f) {
                 f.printStackTrace();
             }
-
             rm.close();
             setVisible(false);
             runPythonScripts(1);
         } else if (command.equals("Outlier Analysis")) {
-            System.out.println("Running command");
             runPythonScripts(1);
+        } else if (command.equals("RC 1 STD")) {
+            setMinMax(1);
+        } else if (command.equals("RC 2 STD")) {
+            setMinMax(2);
+        } else if (command.equals("RC 3 STD")) {
+            setMinMax(3);
         }
     }
 
     public void addRoi(Roi roi){
         rm.addRoi(roi);
         rm.runCommand("Show All");
+    }
+
+    public void setMinMax(int std) {
+        String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
+
+        String[] vals;
+        int total = 0;
+        ArrayList<Double> nums = new ArrayList<Double>();
+        String line;
+        
+         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
+             br.readLine();
+             while((line = br.readLine()) != null){
+                vals = line.split(",");
+                nums.add(Double.valueOf(vals[3]));
+                total += nums.get(nums.size() - 1);
+             }
+         } catch (Exception e){
+             System.out.println(e);
+         }
+
+         double mean = total / nums.size();
+         double temp = 0;
+
+         for (int i = 0; i < nums.size(); i++){
+            double val = nums.get(i);
+            double squrDiffToMean = Math.pow(val - mean, 2);
+            temp += squrDiffToMean;
+        }
+
+        double meanOfDiffs = (double) temp / (double) (nums.size());
+        double standardDeviation = Math.sqrt(meanOfDiffs);
+
+        if(std == 1) {
+            minField.setText(String.valueOf((int) (mean - standardDeviation)));
+            maxField.setText(String.valueOf((int) (mean + standardDeviation)));
+        } else if(std == 2) {
+            minField.setText(String.valueOf((int)(mean - (standardDeviation * 2))));
+            maxField.setText(String.valueOf((int)(mean + (standardDeviation * 2))));
+        } else if(std == 3){
+            minField.setText(String.valueOf((int)(mean - (standardDeviation * 3))));
+            maxField.setText(String.valueOf((int)(mean + (standardDeviation * 3))));
+        } else {
+            return;
+        }
+
     }
 
     public void runPythonScripts(int val){
@@ -207,14 +261,14 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             processBuilder.redirectErrorStream(true);
 
             Process process = processBuilder.start();
-            BufferedReader errout = new BufferedReader(new InputStreamReader(process.getErrorStream()));
-            String line;
+            //BufferedReader errout = new BufferedReader(new InputStreamReader(process.getErrorStream()));
+            //String line;
 
-            while ((line = errout.readLine()) != null) {
-                IJ.log(line);
-            }
+            //while ((line = errout.readLine()) != null) {
+            //    IJ.log(line);
+           // }
             process.waitFor();
-            process.destroy();
+            //process.destroy();
 
             // Use for debugging only
             /* 
@@ -233,3 +287,4 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     }
 
 }
+
