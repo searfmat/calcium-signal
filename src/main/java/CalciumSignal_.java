@@ -7,12 +7,18 @@ import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.RoiManager;
+import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import imageJ.plugins.PoorMan3DReg_;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.io.IOException;
 
@@ -42,9 +48,25 @@ public class CalciumSignal_ implements PlugIn {
             ImagePlus img = WindowManager.getImage(id);
             WindowManager.setTempCurrentImage(img);
             reg.run(arg);
+
+            int current;
+            int output = 0;
+            for (int x = 0; x < img.getHeight(); x++) {
+                for (int y = 0; y < img.getWidth(); y++) {
+                    for (int z = 1; z <= img.getStackSize(); z++) {
+                        // Get Z
+                        //img.setPosition(z);
+                        current = img.getPixel(x,y)[2];
+                        output = Math.max(output, current);
+                    }
+                     // Set Max
+
+                    output = 0;
+                }
+            }
+
             counter.run(arg);
         }
-
 
         /*
         -- ROI MANAGER --
@@ -52,7 +74,7 @@ public class CalciumSignal_ implements PlugIn {
 
         //Gets active table and saves
         String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
-        ResultsTable results = ij.measure.ResultsTable.getResultsTable();
+        ResultsTable results = ResultsTable.getResultsTable();
 
         try {
             results.saveAs(path);
