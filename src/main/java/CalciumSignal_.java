@@ -1,5 +1,6 @@
 import celldetection._3D_objects_counter;
 import ij.*;
+import ij.gui.NewImage;
 import ij.gui.NonBlockingGenericDialog;
 import ij.gui.Overlay;
 import ij.gui.Roi;
@@ -49,21 +50,11 @@ public class CalciumSignal_ implements PlugIn {
             WindowManager.setTempCurrentImage(img);
             reg.run(arg);
 
-            int current;
-            int output = 0;
-            for (int x = 0; x < img.getHeight(); x++) {
-                for (int y = 0; y < img.getWidth(); y++) {
-                    for (int z = 1; z <= img.getStackSize(); z++) {
-                        // Get Z
-                        //img.setPosition(z);
-                        current = img.getPixel(x,y)[2];
-                        output = Math.max(output, current);
-                    }
-                     // Set Max
+            IJ.run( img, "Z Project...", "projection=[Max Intensity]");
+            WindowManager.setTempCurrentImage(img);
+            IJ.run(img,  "Enhance Contrast", "saturated=4 normalize");
 
-                    output = 0;
-                }
-            }
+            WindowManager.setTempCurrentImage(img);
 
             counter.run(arg);
         }
@@ -89,7 +80,6 @@ public class CalciumSignal_ implements PlugIn {
 
 
     }
-
     void runRoiManager(){
 
         //Creates RoiManager
