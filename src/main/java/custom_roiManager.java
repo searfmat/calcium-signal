@@ -2,6 +2,8 @@ import ij.IJ;
 import ij.ImageJ;
 import ij.WindowManager;
 import ij.gui.GUI;
+import ij.gui.Plot;
+import ij.gui.PlotWindow;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
@@ -18,6 +20,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -27,7 +30,7 @@ import java.util.*;
 import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
 
 public class custom_roiManager extends PlugInFrame implements ActionListener {
-
+    private static final DecimalFormat df = new DecimalFormat("0.00");
     private final String PYTHONSCRIPT_PATH = "plugins/CalciumSignal/pythonscript";
     private final String EDGE_DATA_PATH = "plugins/CalciumSignal/edge_data";
     Panel panel;
@@ -126,7 +129,6 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             }
         }
 
-
     }
 
     @Override
@@ -149,7 +151,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             setVisible(false);
             runPythonScripts(1);
         } else if (command.equals("Outlier Analysis")) {
-            runPythonScripts(1);
+            setMinMax(0);
         } else if (command.equals("RC 1 STD")) {
             setMinMax(1);
         } else if (command.equals("RC 2 STD")) {
@@ -170,20 +172,24 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         String[] vals;
         int total = 0;
         ArrayList<Double> nums = new ArrayList<Double>();
+        ArrayList<Double> hs = new ArrayList<Double>();
+        ArrayList<Double> ws = new ArrayList<Double>();
         String line;
         
          try (BufferedReader br = new BufferedReader(new FileReader(path))) {
              br.readLine();
              while((line = br.readLine()) != null){
                 vals = line.split(",");
-                nums.add(Double.valueOf(vals[3]));
+                nums.add(Double.valueOf(vals[24]) + Double.valueOf(vals[25]));
+                hs.add(Double.valueOf(vals[24]));
+                ws.add(Double.valueOf(vals[25]));
                 total += nums.get(nums.size() - 1);
              }
          } catch (Exception e){
              System.out.println(e);
          }
 
-         double mean = total / nums.size();
+         double mean = total / (nums.size() * 2);
          double temp = 0;
 
          for (int i = 0; i < nums.size(); i++){
@@ -195,17 +201,36 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         double meanOfDiffs = (double) temp / (double) (nums.size());
         double standardDeviation = Math.sqrt(meanOfDiffs);
 
-        if(std == 1) {
-            minField.setText(String.valueOf((int) (mean - standardDeviation)));
-            maxField.setText(String.valueOf((int) (mean + standardDeviation)));
-        } else if(std == 2) {
-            minField.setText(String.valueOf((int)(mean - (standardDeviation * 2))));
-            maxField.setText(String.valueOf((int)(mean + (standardDeviation * 2))));
-        } else if(std == 3){
-            minField.setText(String.valueOf((int)(mean - (standardDeviation * 3))));
-            maxField.setText(String.valueOf((int)(mean + (standardDeviation * 3))));
-        } else {
-            return;
+        int minCell = (int)(mean - (standardDeviation * std));
+        int maxCell = (int)(mean + (standardDeviation * std));
+        
+        if (minCell < 0)
+            minCell = 0;
+        if(std == 1 || std == 2 || std == 3) {
+            minField.setText(String.valueOf(minCell));
+            maxField.setText(String.valueOf(maxCell));
+       } else {
+
+            PlotWindow.noGridLines = false;
+            Plot plot = new Plot("Outlier Analysis", "Max Width/Height", "Frequency");
+            double [] numsList = new double[nums.size()];
+
+            for(int i = 0; i < nums.size() - 1; i++) {
+                numsList[i] = nums.get(i);
+            }
+            plot.addHistogram(numsList);
+
+            plot.setLineWidth(5);
+            plot.setColor(Color.BLACK);
+            plot.changeFont(new Font("Helvetica", Font.PLAIN, 15));
+            plot.addLabel(0.15, 0.95, "Mean: " + String.valueOf(mean));
+            plot.addLabel(0.15, 0.90, "STD: " + String.valueOf(df.format(standardDeviation)));
+            plot.addLabel(0.15, 0.85, "Min: " + String.valueOf(Collections.min(nums)));
+            plot.addLabel(0.15, 0.80, "Max: " + String.valueOf(Collections.max(nums)));
+
+            plot.changeFont(new Font("Helvetica", Font.PLAIN, 16));
+            plot.setColor(Color.blue);
+            plot.show();
         }
 
     }
