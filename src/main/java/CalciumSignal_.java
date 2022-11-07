@@ -1,9 +1,6 @@
 import celldetection._3D_objects_counter;
 import ij.*;
-import ij.gui.NewImage;
-import ij.gui.NonBlockingGenericDialog;
-import ij.gui.Overlay;
-import ij.gui.Roi;
+import ij.gui.*;
 import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
@@ -50,11 +47,11 @@ public class CalciumSignal_ implements PlugIn {
             WindowManager.setTempCurrentImage(img);
             reg.run(arg);
 
-            IJ.run( img, "Z Project...", "projection=[Max Intensity]");
-            WindowManager.setTempCurrentImage(img);
-            IJ.run(img,  "Enhance Contrast", "saturated=4 normalize");
+            IJ.run("Z Project...", "projection=[Max Intensity]");
+            img.close();
+            IJ.run(  "Enhance Contrast", "saturated=4 normalize");
 
-            WindowManager.setTempCurrentImage(img);
+
 
             counter.run(arg);
         }
