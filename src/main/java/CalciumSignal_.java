@@ -1,18 +1,22 @@
 import celldetection._3D_objects_counter;
 import ij.*;
-import ij.gui.NonBlockingGenericDialog;
-import ij.gui.Overlay;
-import ij.gui.Roi;
+import ij.gui.*;
 import ij.measure.ResultsTable;
 import ij.plugin.PlugIn;
 import ij.plugin.filter.Analyzer;
 import ij.plugin.frame.RoiManager;
+import ij.process.ColorProcessor;
+import ij.process.ImageProcessor;
 import ij.text.TextPanel;
 import ij.text.TextWindow;
 import imageJ.plugins.PoorMan3DReg_;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.awt.image.ImageObserver;
+import java.awt.image.ImageProducer;
 import java.io.*;
+import java.util.Arrays;
 import java.util.Scanner;
 import java.io.IOException;
 
@@ -42,9 +46,15 @@ public class CalciumSignal_ implements PlugIn {
             ImagePlus img = WindowManager.getImage(id);
             WindowManager.setTempCurrentImage(img);
             reg.run(arg);
+
+            IJ.run("Z Project...", "projection=[Max Intensity]");
+            img.close();
+            IJ.run(  "Enhance Contrast", "saturated=4 normalize");
+
+
+
             counter.run(arg);
         }
-
 
         /*
         -- ROI MANAGER --
@@ -52,7 +62,7 @@ public class CalciumSignal_ implements PlugIn {
 
         //Gets active table and saves
         String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
-        ResultsTable results = ij.measure.ResultsTable.getResultsTable();
+        ResultsTable results = ResultsTable.getResultsTable();
 
         try {
             results.saveAs(path);
@@ -67,7 +77,6 @@ public class CalciumSignal_ implements PlugIn {
 
 
     }
-
     void runRoiManager(){
 
         //Creates RoiManager
