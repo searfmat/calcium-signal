@@ -1,5 +1,6 @@
 import ij.IJ;
 import ij.ImageJ;
+import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.GUI;
 import ij.gui.Plot;
@@ -8,6 +9,7 @@ import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
+import ij.plugin.Grid;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
@@ -40,6 +42,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     JFormattedTextField minField;
     JFormattedTextField maxField;
     Set<Roi> allRois = new HashSet<Roi>();
+    
 
     custom_roiManager(){
         super("Custom RoiManager");
@@ -61,6 +64,8 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         addButton("RC 1 STD");
         addButton("RC 2 STD");
         addButton("RC 3 STD");
+        addButton("Grid Suggestions");
+        addButton("Create Grid");
         add(panel);
 
         pack();
@@ -80,13 +85,13 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         formatter.setAllowsInvalid(false);
         formatter.setCommitsOnValidEdit(true);
 
-        JLabel min = new JLabel("Min Cell Size: ");
+        JLabel min = new JLabel("Min Cell Diameter: ");
         minField = new JFormattedTextField(formatter);
         minField.setColumns(10);
         minField.setActionCommand("cellMin");
         minField.addActionListener(this);
 
-        JLabel max = new JLabel("Max Cell Size: ");
+        JLabel max = new JLabel("Max Cell Diameter: ");
         maxField = new JFormattedTextField(formatter);
         maxField.setColumns(10);
         maxField.setActionCommand("cellMax");
@@ -114,16 +119,17 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
 
         cellMin = min;
         cellMax = max;
-
-        Roi [] rois = rm.getRoisAsArray();
-        allRois.addAll(Arrays.asList(rois));
-
+        //allRois.clear();
+        if(allRois.size() == 0) {
+            Roi [] rois = rm.getRoisAsArray();
+            allRois.addAll(Arrays.asList(rois));
+        }
         rm.close();
         RoiManager newRm = new RoiManager();
-        rm = newRm;
+        rm = newRm;        
 
         for(Roi roi: allRois){
-            allRois.add(roi);
+            //allRois.add(roi);
             if (roi.getBounds().getHeight() >= min && roi.getBounds().getWidth() >= min && roi.getBounds().getWidth() <= max && roi.getBounds().getWidth() <= max){
                 addRoi(roi);
             }
@@ -158,6 +164,16 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             setMinMax(2);
         } else if (command.equals("RC 3 STD")) {
             setMinMax(3);
+        } else if(command.equals("Grid Suggestions")) {
+            int[] idList = WindowManager.getIDList();
+            ImagePlus img = WindowManager.getImage(idList[0]);
+            double imgW = img.getWidth();
+            double imgArea = Math.pow((imgW *1.24296875), 2);
+            
+            IJ.showMessage("Grid Value Help", "Grid Area Values:\n3x3: "+ Math.round(imgArea / 9) +"\n4x4: " + Math.round(imgArea / 16));
+        } else if(command.equals("Create Grid")) {
+            Grid g = new Grid();
+            g.run(null);
         }
     }
 
@@ -180,7 +196,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
              br.readLine();
              while((line = br.readLine()) != null){
                 vals = line.split(",");
-                nums.add(Double.valueOf(vals[24]) + Double.valueOf(vals[25]));
+                nums.add((Double.valueOf(vals[24]) + Double.valueOf(vals[25]))/ 2);
                 hs.add(Double.valueOf(vals[24]));
                 ws.add(Double.valueOf(vals[25]));
                 total += nums.get(nums.size() - 1);
@@ -189,7 +205,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
              System.out.println(e);
          }
 
-         double mean = total / (nums.size() * 2);
+         double mean = total / (nums.size());
          double temp = 0;
 
          for (int i = 0; i < nums.size(); i++){
@@ -204,21 +220,22 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         int minCell = (int)(mean - (standardDeviation * std));
         int maxCell = (int)(mean + (standardDeviation * std));
         
-        if (minCell < 0)
-            minCell = 0;
+        if (minCell <= 0)
+            minCell = 1;
         if(std == 1 || std == 2 || std == 3) {
             minField.setText(String.valueOf(minCell));
             maxField.setText(String.valueOf(maxCell));
        } else {
 
             PlotWindow.noGridLines = false;
-            Plot plot = new Plot("Outlier Analysis", "Max Width/Height", "Frequency");
+            Plot plot = new Plot("Outlier Analysis", "Cell Diameter", "Frequency");
             double [] numsList = new double[nums.size()];
 
-            for(int i = 0; i < nums.size() - 1; i++) {
-                numsList[i] = nums.get(i);
+            for(int i = 0; i < nums.size(); i++) {
+                numsList[i] = Math.round(nums.get(i));
             }
-            plot.addHistogram(numsList);
+            plot.addHistogram(numsList, 1);
+    
 
             plot.setLineWidth(5);
             plot.setColor(Color.BLACK);
