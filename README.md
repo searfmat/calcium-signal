@@ -1,6 +1,6 @@
 # CalciumSignal
 #### An ImageJ plugin for calcium signal cell analysis
-Contributors: Emily Oldham, Sean McMann, Gia Bugieda, Akshat Katoch, Emma Adelmann, Sohan Gadiraju, Jonathan Zhang
+Contributors: Emily Oldham, Sean McMann, Gia Bugieda, Akshat Katoch, Emma Adelmann, Sohan Gadiraju, Jonathan Zhang, Matthew Searfass, Andrew McCracken, Spagnolia, Ben Newlin, Jaden Stith
 
 
 ## Installation Instructions
@@ -19,7 +19,19 @@ After launching Fiji, navigate to *Plugins* -> *Calcium Signal* -> *Run Calcium 
 
 Allow a few moments for the image registration and edge detection to complete. Then, make corrections as needed in the ROI Manager dialogue.
 
-After this is done, the peak analysis phase will begin. You will find the peak analysis outputs in *Fiji.app/plugins/CalciumSignal/pythonscript/cell_data*.
+The ROI manager has multiple buttons for various tools:
+
+*RC 1, RC 2, RC 3* - Generate numbers to eliminate outliers 1, 2, or 3 standard deviations away from the mean.
+
+*Outlier Analysis* - Generate a histogram of the current selection.
+
+*Grid Suggestions* - Pulls up window with suggested values for the grid.
+
+*Generate Grid* - Shortcut for the grid dialog window.
+
+Further features are detailed in the final user document.
+
+After running multi-measure, the peak analysis phase will begin. You will find the peak analysis outputs in *Fiji.app/plugins/CalciumSignal/pythonscript/cell_data*.
 
 
 ## Credits
