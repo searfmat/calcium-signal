@@ -58,6 +58,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         addButton("RC 3 STD");
         addButton("Grid Suggestions");
         addButton("Create Grid");
+        addButton("Undo [Cntrl + Shift + E]");
         add(panel);
 
         pack();
@@ -168,7 +169,12 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             // TODO: Find out how to indroduce actual centering
             Grid g = new Grid();
             g.run(null);
+        } else if(command.equals("Undo [Cntrl + Shift + E]")) {
+            ImagePlus imp = new ImagePlus();
+            imp = WindowManager.getCurrentImage();
+            imp.restoreRoi();
         }
+
     }
 
     public void addRoi(Roi roi){
