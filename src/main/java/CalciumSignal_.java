@@ -14,7 +14,7 @@ public class CalciumSignal_ implements PlugIn {
     public void run(String arg) {
 
         IJ.showMessage("Calcium Signal", "Welcome to the Calcium Signal plugin!");
-        Frame roiWindow = WindowManager.getCurrentWindow();
+        // Frame roiWindow = WindowManager.getCurrentWindow();
 
         /*
         -- IMAGE REGISTRATION AND EDGE DETECTION --
@@ -34,9 +34,9 @@ public class CalciumSignal_ implements PlugIn {
             WindowManager.setTempCurrentImage(img);
             reg.run(arg);
 
-            IJ.run("Z Project...", "projection=[Max Intensity]");
-            img.close();
+            IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
             IJ.run("Enhance Contrast", "saturated=4 normalize");
+            IJ.run("Duplicate...","title=post-reg");
 
             counter.run(arg);
         }
@@ -54,9 +54,9 @@ public class CalciumSignal_ implements PlugIn {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        WindowManager.removeWindow(WindowManager.getFrontWindow());
-        WindowManager.removeWindow(WindowManager.getFrontWindow());
-        WindowManager.toFront(roiWindow);
+        // WindowManager.removeWindow(WindowManager.getFrontWindow());
+        // WindowManager.removeWindow(WindowManager.getFrontWindow());
+        // WindowManager.toFront(roiWindow);
 
         runRoiManager();
         runMenu();
