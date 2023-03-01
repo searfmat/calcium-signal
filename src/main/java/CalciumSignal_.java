@@ -59,6 +59,7 @@ public class CalciumSignal_ implements PlugIn {
         WindowManager.toFront(roiWindow);
 
         runRoiManager();
+        runMenu();
     }
     void runRoiManager(){
 
@@ -94,6 +95,10 @@ public class CalciumSignal_ implements PlugIn {
             crm.addRoi(roi);
         }
 
+    }
+
+    void runMenu(){
+       menu menu = new menu();
     }
 
     public static void main(String[] args) {
