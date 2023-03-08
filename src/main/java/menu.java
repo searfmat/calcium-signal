@@ -31,7 +31,7 @@ import java.util.*;
 public class menu extends PlugInFrame implements ActionListener {
 
     // Panel panel;
-    JPanel panel;
+    Panel panel;
 
 
 
@@ -42,10 +42,10 @@ public class menu extends PlugInFrame implements ActionListener {
         addKeyListener(ij);
         WindowManager.addWindow(this);
 
-        panel = new JPanel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        panel = new Panel();
+        // panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        panel.add(Box.createHorizontalStrut(100));
+        // panel.add(Box.createHorizontalStrut(100));
 
         addButton("Make a Copy");
         addButton("Registration");
@@ -73,7 +73,7 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     void addButton(String label) {
-        System.out.println("addButton in menu class");
+        System.out.println("here we go!");
         Button b = new Button(label);
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());

@@ -27,8 +27,10 @@ import java.util.Set;
 import java.util.*;
 
 
+
 public class menu extends PlugInFrame implements ActionListener {
 
+    // Panel panel;
     Panel panel;
 
 
@@ -39,11 +41,30 @@ public class menu extends PlugInFrame implements ActionListener {
         ImageJ ij = IJ.getInstance();
         addKeyListener(ij);
         WindowManager.addWindow(this);
-        setLayout(new BorderLayout());
 
         panel = new Panel();
+        // panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        addButton("test button");
+        // panel.add(Box.createHorizontalStrut(100));
+
+        addButton("Make a Copy");
+        addButton("Registration");
+        
+        // JLabel cellDetetionLabel = new JLabel("Cell Detection");
+        // panel.add(cellDetetionLabel);
+        addButton("Threshold Setting");
+        addButton("Custom RoiManager");
+        addButton("ROI Manager");
+        addButton("Save ROI set as...");
+        addButton("Input ROI set");
+        addButton("Apply ROI to video");
+
+        // JLabel showResults = new JLabel("Results");
+        // panel.add(showResults);
+        addButton("Set Measurments");
+        addButton("Save Results");
+
+        add(panel);
 
         pack();
         GUI.center(this);
@@ -52,7 +73,7 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     void addButton(String label) {
-        System.out.println("addButton in menu class");
+        System.out.println("here we go!");
         Button b = new Button(label);
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
