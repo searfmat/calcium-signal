@@ -9,10 +9,13 @@ import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
+import imageJ.plugins.PoorMan3DReg_;
 import ij.plugin.Grid;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
+
+import celldetection._3D_objects_counter;
 
 import java.awt.*;
 import java.awt.event.ActionEvent;
@@ -26,43 +29,45 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.*;
 
-
-
 public class menu extends PlugInFrame implements ActionListener {
 
-    // Panel panel;
-    JPanel panel;
-
-
+    Panel panel;
+    // JPanel panel;
 
     menu(){
-        super("Menu!");
+        super("Menu");
 
         ImageJ ij = IJ.getInstance();
         addKeyListener(ij);
         WindowManager.addWindow(this);
 
-        panel = new JPanel();
+        panel = new Panel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
-        panel.add(Box.createHorizontalStrut(100));
-
-        addButton("Make a Copy");
-        addButton("Registration");
+        // panel.setSize(600, 400);
         
-        // JLabel cellDetetionLabel = new JLabel("Cell Detection");
-        // panel.add(cellDetetionLabel);
-        addButton("Threshold Setting");
-        addButton("Custom RoiManager");
-        addButton("ROI Manager");
-        addButton("Save ROI set as...");
-        addButton("Input ROI set");
-        addButton("Apply ROI to video");
 
-        // JLabel showResults = new JLabel("Results");
-        // panel.add(showResults);
-        addButton("Set Measurments");
-        addButton("Save Results");
+        panel.add(Box.createHorizontalStrut(200));
+        // panel.setSize(700, 600);
+
+        addButton("Make a Copy", false);
+        addButton("Registration", false);
+        
+        Label cellDetectionLabel = new Label("Cell Detectionn", Label.CENTER);
+        panel.add(cellDetectionLabel);
+        addButton("Threshold Setting", false);
+        addButton("Custom RoiManager", false);
+
+        addButton("ROI Manager", true);
+
+        addButton("Save ROI set as...", true);
+        addButton("Input ROI set", true);
+        addButton("Apply ROI to video", true);
+
+        Label showResults = new Label("Show results", Label.CENTER);
+        panel.add(showResults);
+        addButton("Set Measurments", true);
+        addButton("Save Results", true);
 
         add(panel);
 
@@ -72,18 +77,51 @@ public class menu extends PlugInFrame implements ActionListener {
 
     }
 
-    void addButton(String label) {
-        System.out.println("addButton in menu class");
+    void addButton(String label, boolean isDisabled) {
         Button b = new Button(label);
+        b.setMaximumSize(new Dimension(150, 300));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
-        panel.add(b);
+        if (isDisabled) {b.setEnabled(isDisabled);}
+        panel.add(b);        
     } 
 
     @Override
     public void actionPerformed(ActionEvent e) {
-        
+        String command = e.getActionCommand();
+        _3D_objects_counter counter = new _3D_objects_counter();
+        PoorMan3DReg_ reg = new PoorMan3DReg_();
+
+        if (command == "Make a Copy") {
+            // ImagePlus img = WindowManager.getImage("post-reg");
+            IJ.run("Duplicate...","title=Copy");
+        } 
+        else if (command == "Registration") {
+            reg.run("");
+        }
+        else if (command == "Threshold Setting") {
+            counter.run("");
+        }
+        else if (command == "Custom RoiManager") {
+
+        }
+        else if (command == "ROI Manager") {
+
+        }   
+        else if (command == "Save ROI set as...") {
+
+        }
+        else if (command == "Input ROI set") {
+
+        }
+        else if (command == "Apply ROI to video") {
+
+        }
+        else if (command == "Set Measurments") {
+
+        }
+        else if (command ==  "Save Results") {
+
+        }
     }
-
 }
-
