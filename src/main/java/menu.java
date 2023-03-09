@@ -53,7 +53,7 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("Make a Copy", false);
         addButton("Registration", false);
         
-        Label cellDetectionLabel = new Label("Cell Detectionn", Label.CENTER);
+        Label cellDetectionLabel = new Label("Cell Detection", Label.CENTER);
         panel.add(cellDetectionLabel);
         addButton("Threshold Setting", false);
         addButton("Custom RoiManager", false);
@@ -66,7 +66,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
         Label showResults = new Label("Show results", Label.CENTER);
         panel.add(showResults);
-        addButton("Set Measurments", true);
+        addButton("Set Measurements", true);
         addButton("Save Results", true);
 
         add(panel);
