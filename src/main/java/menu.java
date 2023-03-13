@@ -43,6 +43,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
         panel = new Panel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        Font font = new Font("Verdana", Font.BOLD, 16);
 
         // panel.setSize(600, 400);
         
@@ -54,19 +55,20 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("Registration", false);
         
         Label cellDetectionLabel = new Label("Cell Detection", Label.CENTER);
+        cellDetectionLabel.setFont(font);
         panel.add(cellDetectionLabel);
         addButton("Threshold Setting", false);
         addButton("Custom RoiManager", false);
-
         addButton("ROI Manager", true);
-
         addButton("Save ROI set as...", true);
         addButton("Input ROI set", true);
         addButton("Apply ROI to video", true);
 
         Label showResults = new Label("Show results", Label.CENTER);
+        showResults.setFont(font);
         panel.add(showResults);
-        addButton("Set Measurements", true);
+        addButton("Set Measurements", false);
+        addButton("Show Results", true);
         addButton("Save Results", true);
 
         add(panel);
@@ -82,7 +84,7 @@ public class menu extends PlugInFrame implements ActionListener {
         b.setMaximumSize(new Dimension(150, 300));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
-        if (isDisabled) {b.setEnabled(isDisabled);}
+        b.setEnabled(!isDisabled);
         panel.add(b);        
     } 
 
@@ -97,16 +99,16 @@ public class menu extends PlugInFrame implements ActionListener {
             IJ.run("Duplicate...","title=Copy");
         } 
         else if (command == "Registration") {
-            reg.run("");
+            reg.run("run");
         }
         else if (command == "Threshold Setting") {
-            counter.run("");
+            counter.run("run");
         }
         else if (command == "Custom RoiManager") {
-
+            new custom_roiManager();
         }
         else if (command == "ROI Manager") {
-
+            
         }   
         else if (command == "Save ROI set as...") {
 
@@ -117,10 +119,10 @@ public class menu extends PlugInFrame implements ActionListener {
         else if (command == "Apply ROI to video") {
 
         }
-        else if (command == "Set Measurments") {
-
+        else if (command == "Set Measurements") {
+            IJ.run("Measure");
         }
-        else if (command ==  "Save Results") {
+        else if (command == "Save Results") {
 
         }
     }
