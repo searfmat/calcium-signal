@@ -33,6 +33,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
     Panel panel;
     // JPanel panel;
+    ResultsTable results = ResultsTable.getResultsTable();
 
     menu(){
         super("Menu");
@@ -68,7 +69,7 @@ public class menu extends PlugInFrame implements ActionListener {
         showResults.setFont(font);
         panel.add(showResults);
         addButton("Set Measurements", false);
-        addButton("Show Results", true);
+        addButton("Show Results", false);
         addButton("Save Results", true);
 
         add(panel);
@@ -112,8 +113,7 @@ public class menu extends PlugInFrame implements ActionListener {
             IJ.run("Enhance Contrast", "saturated=4 normalize");
             IJ.run("Duplicate...","title=post-reg");
 
-            counter.run("run");
-        }
+            }
         }
         else if (command == "Threshold Setting") {
             counter.run("run");
@@ -172,6 +172,21 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Set Measurements") {
             IJ.run("Measure");
+        }
+        
+        else if (command == "Show Results"){
+            
+            //System.out.println(results);
+            // ResultsTable results = ResultsTable.getResultsTable();
+
+            // results.show(results.getTitle());
+
+            if (WindowManager.getActiveTable() == null){
+                ResultsTable results = ResultsTable.getResultsTable();
+
+                ResultsTable.show("Results");
+            }
+            System.out.println(WindowManager.getActiveTable());
         }
         else if (command == "Save Results") {
 

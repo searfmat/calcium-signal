@@ -19,6 +19,7 @@ public class CalciumSignal_ implements PlugIn {
         /*
         -- IMAGE REGISTRATION AND EDGE DETECTION --
          */
+         
         int imageCount = WindowManager.getImageCount();
         int[] idList = WindowManager.getIDList();
         PoorMan3DReg_ reg = new PoorMan3DReg_();
