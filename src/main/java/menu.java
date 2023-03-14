@@ -12,9 +12,6 @@ import ij.plugin.frame.RoiManager;
 import imageJ.plugins.PoorMan3DReg_;
 import ij.plugin.Grid;
 
-import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-
 import celldetection._3D_objects_counter;
 
 import java.awt.*;
@@ -32,7 +29,6 @@ import java.util.*;
 public class menu extends PlugInFrame implements ActionListener {
 
     Panel panel;
-    // JPanel panel;
 
     menu(){
         super("Menu");
@@ -42,12 +38,12 @@ public class menu extends PlugInFrame implements ActionListener {
         WindowManager.addWindow(this);
 
         panel = new Panel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+        // panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
 
         // panel.setSize(600, 400);
         
 
-        panel.add(Box.createHorizontalStrut(200));
+        // panel.add(Box.createHorizontalStrut(200));
         // panel.setSize(700, 600);
 
         addButton("Make a Copy", false);
@@ -92,6 +88,9 @@ public class menu extends PlugInFrame implements ActionListener {
         _3D_objects_counter counter = new _3D_objects_counter();
         PoorMan3DReg_ reg = new PoorMan3DReg_();
 
+
+       
+
         if (command == "Make a Copy") {
             // ImagePlus img = WindowManager.getImage("post-reg");
             IJ.run("Duplicate...","title=Copy");
@@ -103,16 +102,16 @@ public class menu extends PlugInFrame implements ActionListener {
             counter.run("");
         }
         else if (command == "Custom RoiManager") {
-
+            custom_roiManager crm = new custom_roiManager();
         }
         else if (command == "ROI Manager") {
-
+            RoiManager drm = new RoiManager();
         }   
         else if (command == "Save ROI set as...") {
 
         }
         else if (command == "Input ROI set") {
-
+            
         }
         else if (command == "Apply ROI to video") {
 
