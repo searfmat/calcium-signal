@@ -59,17 +59,16 @@ public class menu extends PlugInFrame implements ActionListener {
         panel.add(cellDetectionLabel);
         addButton("Threshold Setting", false);
         addButton("Custom RoiManager", false);
-
-        addButton("ROI Manager", true);
-
-        addButton("Save ROI set as...", true);
+        addButton("ROI Manager", false);
+        addButton("Save ROI set as...", false);
         addButton("Input ROI set", true);
         addButton("Apply ROI to video", true);
 
         Label showResults = new Label("Show results", Label.CENTER);
         showResults.setFont(font);
         panel.add(showResults);
-        addButton("Set Measurements", true);
+        addButton("Set Measurements", false);
+        addButton("Show Results", true);
         addButton("Save Results", true);
 
         add(panel);
@@ -85,7 +84,7 @@ public class menu extends PlugInFrame implements ActionListener {
         b.setMaximumSize(new Dimension(150, 300));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
-        if (isDisabled) {b.setEnabled(isDisabled);}
+        b.setEnabled(!isDisabled);
         panel.add(b);        
     } 
 
@@ -100,18 +99,69 @@ public class menu extends PlugInFrame implements ActionListener {
             IJ.run("Duplicate...","title=Copy");
         } 
         else if (command == "Registration") {
-            reg.run("");
+
+            int imageCount = WindowManager.getImageCount();
+            int[] idList = WindowManager.getIDList();
+
+            for (int id : idList) {
+            ImagePlus img = WindowManager.getImage(id);
+            WindowManager.setTempCurrentImage(img);
+            reg.run("run");
+
+            IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
+            IJ.run("Enhance Contrast", "saturated=4 normalize");
+            IJ.run("Duplicate...","title=post-reg");
+
+            counter.run("run");
+        }
         }
         else if (command == "Threshold Setting") {
-            counter.run("");
+            counter.run("run");
         }
         else if (command == "Custom RoiManager") {
-            new custom_roiManager();
+            custom_roiManager crm = new custom_roiManager();
         }
+            
+        
         else if (command == "ROI Manager") {
 
-        }   
+            double x;
+            double y;
+            double width;
+            double height;
+            int cornerDiameter = 20;
+
+            RoiManager drm = new RoiManager();
+
+            ResultsTable results = ResultsTable.getResultsTable();
+            
+            double[] widths = results.getColumn("B-width");
+            double[] heights = results.getColumn("B-height");
+            double[] xs = results.getColumn("X");
+            double[] ys = results.getColumn("Y");
+
+
+            for(int i = 0; i < widths.length; i++) {
+
+            // This is used to make sure we have x and y at the center of the detected region
+            width = widths[i];
+            height = heights[i];
+            x = xs[i] - width/2 ;
+            y = ys[i] - height/2;
+
+            //Create ROI with Input: int x, int y, int width, int height, int cornerDiameter
+            Roi roi = new Roi((int)x, (int)y, (int)width, (int)height, cornerDiameter);
+
+            //Add Roi to RoiManager
+            drm.addRoi(roi);
+            drm.runCommand("Show All");
+            
+        }  
+        } 
         else if (command == "Save ROI set as...") {
+
+            int imageCount = WindowManager.getImageCount();
+            int[] idList = WindowManager.getIDList();
 
         }
         else if (command == "Input ROI set") {
@@ -120,10 +170,10 @@ public class menu extends PlugInFrame implements ActionListener {
         else if (command == "Apply ROI to video") {
 
         }
-        else if (command == "Set Measurments") {
-
+        else if (command == "Set Measurements") {
+            IJ.run("Measure");
         }
-        else if (command ==  "Save Results") {
+        else if (command == "Save Results") {
 
         }
     }

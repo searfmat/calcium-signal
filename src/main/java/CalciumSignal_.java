@@ -9,7 +9,7 @@ import java.awt.*;
 import java.io.IOException;
 
 public class CalciumSignal_ implements PlugIn {
-    private final String EDGE_DATA_PATH = "plugins/CalciumSignal/edge_data";
+    // private final String EDGE_DATA_PATH = "plugins/CalciumSignal/edge_data";
 
     public void run(String arg) {
 
@@ -46,7 +46,7 @@ public class CalciumSignal_ implements PlugIn {
          */
 
         //Gets active table and saves
-        String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
+        String path =  "../src/main/java/Sample.csv";
         ResultsTable results = ResultsTable.getResultsTable();
 
         try {
@@ -85,7 +85,7 @@ public class CalciumSignal_ implements PlugIn {
             // This is used to make sure we have x and y at the center of the detected region
             width = widths[i];
             height = heights[i];
-            x = xs[i] - width/2 ;
+            x = xs[i] - width/2;
             y = ys[i] - height/2;
 
             //Create ROI with Input: int x, int y, int width, int height, int cornerDiameter
