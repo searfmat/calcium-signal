@@ -194,6 +194,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     public void wavletDenoise() {
         ArrayList<Double> signal = new ArrayList<Double>();
         ArrayList<Double> frames = new ArrayList<Double>();
+        ArrayList<Cell> cells = new ArrayList<>();
 
         try {
             ArrayList<String[]> lines = new ArrayList<String[]>();
@@ -225,13 +226,13 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
                 }
                 if(signal.size() != 0) {
                     double[] signalArr = new double[signal.size()];
-                    for (int k = 0; k < signalArr.length; k++)
+                    for (int k = 0; k < signalArr.length ; k++)
                         signalArr[k] = signal.get(k);
-                        generatePlot(framesArr, signalArr, i);
+                        generatePlot(framesArr, signalArr, i, cells);
                 }
                 signal.clear();
             }
-
+            CellManager cm = new CellManager(cells);
         } catch(IOException e) {
             // ... handle errors ...
         }
@@ -239,8 +240,12 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
 
 
     }
-    public static void generatePlot(double[] frames, double[] signal, int cellNumber) {
-        Plot plot = new Plot("Wavelet (Development) - Cell " + cellNumber, "Video Frame (#)", "Calcium Intensity");
+    public static void generatePlot(double[] frames, double[] signal, int cellNumber, ArrayList<Cell> cells) {
+        Cell cell = new Cell();
+        cell.setSignal(signal);
+        cell.setFrames(frames);
+        cell.setCellNumber(cellNumber);
+        Plot plot = new Plot("Cell " + cellNumber, "Video Frame (#)", "Calcium Intensity");
         plot.setColor(Color.BLACK);
         plot.setLineWidth(2);
         plot.add("line", frames, signal);
@@ -249,19 +254,13 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         plot.add("line", frames, n);
         plot.setColor(Color.BLUE);
         plot.setLineWidth(3);
-        findPeaks(n, frames, plot);
-
-        ImagePlus ipPlot = plot.getImagePlus();
-        BufferedImage bufferedPlot = ipPlot.getBufferedImage();
-        try {
-            File outputfile = new File("C:/Users/Matthew/Desktop/TestCells/Cell" + cellNumber + ".png");
-            ImageIO.write(bufferedPlot, "png", outputfile);
-        } catch (IOException e) {
-            System.out.println("Failed to write image file");
-        }
+        findPeaks(n, frames, plot, cell);
+        cell.setNormalize(n);
+        cell.setPlot(plot);
+        cells.add(cell);
 
     }
-    public static void findPeaks(double[] input, double[] xinput, Plot plot) {
+    public static void findPeaks(double[] input, double[] xinput, Plot plot, Cell cell) {
         ArrayList<Double> peaks = new ArrayList<>();
         ArrayList<Double> xpeaks = new ArrayList<>();
         for (int i = 1; i < input.length - 1; i++) {
@@ -270,11 +269,11 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
                 xpeaks.add(xinput[i]);
             }
         }
-        plot.addPoints(xpeaks, peaks, 0);
+        //plot.addPoints(xpeaks, peaks, 0);
 
-        peaks.clear();
-        xpeaks.clear();
-        plot.setColor(Color.GREEN);
+        //peaks.clear();
+        //xpeaks.clear();
+        //plot.setColor(Color.GREEN);
 
         for (int i = 1; i < input.length - 1; i++) {
             if (input[i - 1] > input[i] && input[i] < input[i + 1]) {
@@ -283,8 +282,9 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             }
         }
         plot.addPoints(xpeaks, peaks, 0);
-        
-        
+        cell.setPeaks(peaks);
+        cell.setXPeaks(xpeaks);      
+        cell.arrangePoints();
     }
     // https://stackoverflow.com/questions/59263100/how-to-easily-apply-a-gauss-filter-to-a-list-array-of-doubles
     public static double[] normalize(double[] vals) {
