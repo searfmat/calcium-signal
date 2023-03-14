@@ -82,7 +82,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
     void addButton(String label, boolean isDisabled) {
         Button b = new Button(label);
-        b.setMaximumSize(new Dimension(150, 300));
+        b.setMaximumSize(new Dimension(200, 350));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
         b.setEnabled(!isDisabled);
