@@ -282,9 +282,19 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             }
         }
         plot.addPoints(xpeaks, peaks, 0);
+        
         cell.setPeaks(peaks);
         cell.setXPeaks(xpeaks);      
         cell.arrangePoints();
+        plot.setFontSize(24);
+        plot.setColor(Color.BLUE);
+        for(int i = 0; i < xpeaks.size(); i++) {
+            plot.addText(String.valueOf(i),cell.getXPeaks().get(i), cell.getPeaks().get(i));
+        }
+        plot.setFontSize(12);
+
+        
+    
     }
     // https://stackoverflow.com/questions/59263100/how-to-easily-apply-a-gauss-filter-to-a-list-array-of-doubles
     public static double[] normalize(double[] vals) {

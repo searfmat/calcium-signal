@@ -79,7 +79,7 @@ public class Cell {
         this.normalize = normalize;
     }
 
-    public void generateNewPlot() {
+    public void generateNewPlot(Boolean showlabels) {
         Plot plot = new Plot("Cell " + this.cellNumber, "Video Frame (#)", "Calcium Intensity");
         plot.setColor(Color.BLACK);
         plot.setLineWidth(2);
@@ -89,6 +89,16 @@ public class Cell {
         plot.setColor(Color.BLUE);
         plot.setLineWidth(3);
         plot.addPoints(this.xpeaks, this.peaks, 0);
+
+        if(showlabels) {
+            plot.setFontSize(24);
+            plot.setColor(Color.BLUE);
+            for(int i = 0; i < this.xpeaks.size(); i++) {
+                plot.addText(String.valueOf(i),this.getXPeaks().get(i), this.getPeaks().get(i));
+            }
+            plot.setFontSize(12);
+        }
+
         this.plot = plot;
     }
 

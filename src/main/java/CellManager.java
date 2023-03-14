@@ -4,9 +4,15 @@ import ij.WindowManager;
 import ij.gui.GUI;
 import ij.plugin.frame.PlugInFrame;
 import javax.swing.*;
+
+import com.opencsv.CSVWriter;
+
 import java.awt.*;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.*;
 
 public class CellManager extends PlugInFrame implements ActionListener {
@@ -78,8 +84,31 @@ public class CellManager extends PlugInFrame implements ActionListener {
             System.out.println(selected);
         } else if (command == "Generate All Plots") {
             for (int i = 0; i < cells.size(); i++) {
+                cells.get(i).generateNewPlot(false);
                 cells.get(i).writegraph();
             }
+            try {
+                generateCSV();
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        }
+    }
+
+    public void generateCSV() throws IOException {
+        System.out.println("GENERATING CSV");
+        ArrayList<String[]> csvData = new ArrayList<>();
+        String[] header = {"Cell Number", "Peak Number", "Frame", "Intensity"};
+        csvData.add(header);
+        for(Cell c : cells) {
+            for(int i = 0; i < c.getXPeaks().size(); i++) {
+                String[] vals = {c.toString(), String.valueOf(i), String.valueOf(c.getXPeaks().get(i)), String.valueOf(c.getPeaks().get(i))};
+                csvData.add(vals);
+            }
+        }
+
+        try (CSVWriter writer = new CSVWriter(new FileWriter("C:/Users/Matthew/Desktop/TestCells/TestCells.csv"))) {
+            writer.writeAll(csvData);
         }
     }
 }

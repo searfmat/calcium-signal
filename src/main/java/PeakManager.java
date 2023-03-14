@@ -88,7 +88,7 @@ public class PeakManager extends PlugInFrame implements ActionListener {
                 }
             }
 
-            cell.generateNewPlot();
+            cell.generateNewPlot(true);
             cell.gePlot().show();
             PeakManager pm = new PeakManager(cell);
             close();
