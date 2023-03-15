@@ -119,7 +119,14 @@ public class menu extends PlugInFrame implements ActionListener {
             counter.run("run");
         }
         else if (command == "Custom RoiManager") {
-            custom_roiManager crm = new custom_roiManager();
+            Window crm_window = WindowManager.getFrame("Custom RoiManager");
+            if (crm_window == null){
+                custom_roiManager crm = new custom_roiManager();
+            }
+            else {
+                // bring to front
+                WindowManager.toFront(crm_window);
+            }
         }
             
         
@@ -185,6 +192,7 @@ public class menu extends PlugInFrame implements ActionListener {
                 ResultsTable results = ResultsTable.getResultsTable();
 
                 results.show("Results");
+                //System.out.println();
             }
             System.out.println(WindowManager.getActiveTable());
         }

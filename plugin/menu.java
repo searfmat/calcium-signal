@@ -61,7 +61,7 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("Threshold Setting", false);
         addButton("Custom RoiManager", false);
         addButton("ROI Manager", false);
-        addButton("Save ROI set as...", false);
+        addButton("Save ROI set as...", true);
         addButton("Input ROI set", true);
         addButton("Apply ROI to video", true);
 
@@ -82,7 +82,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
     void addButton(String label, boolean isDisabled) {
         Button b = new Button(label);
-        b.setMaximumSize(new Dimension(150, 300));
+        b.setMaximumSize(new Dimension(200, 350));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
         b.setEnabled(!isDisabled);
@@ -119,7 +119,14 @@ public class menu extends PlugInFrame implements ActionListener {
             counter.run("run");
         }
         else if (command == "Custom RoiManager") {
-            custom_roiManager crm = new custom_roiManager();
+            Window crm_window = WindowManager.getFrame("Custom RoiManager");
+            if (crm_window == null){
+                custom_roiManager crm = new custom_roiManager();
+            }
+            else {
+                // bring to front
+                WindowManager.toFront(crm_window);
+            }
         }
             
         
@@ -184,7 +191,8 @@ public class menu extends PlugInFrame implements ActionListener {
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
 
-                ResultsTable.show("Results");
+                results.show("Results");
+                //System.out.println();
             }
             System.out.println(WindowManager.getActiveTable());
         }
