@@ -178,7 +178,6 @@ public class menu extends PlugInFrame implements ActionListener {
 
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
-
                 results.show("Results");
             }
         }
@@ -190,8 +189,8 @@ public class menu extends PlugInFrame implements ActionListener {
             ResultsTable results = ResultsTable.getResultsTable();
             try {
                 String[] title = WindowManager.getImageTitles();
-                results.saveAs("../" + title[0] + ".csv");
-                IJ.showMessage("CSV File saved to the same directory as Fiji as " + title[0]);
+                results.saveAs("../" + title[0] + "-results.csv");
+                IJ.showMessage("CSV File saved to the same directory as Fiji as " + title[0] + "-results.csv");
             } catch (IOException e1) {
                 e1.printStackTrace();
                 IJ.showMessage("There was an error saving the file.");
