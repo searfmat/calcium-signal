@@ -119,7 +119,7 @@ public class menu extends PlugInFrame implements ActionListener {
             counter.run("run");
         }
         else if (command == "Custom RoiManager") {
-            custom_roiManager crm = new custom_roiManager();
+            new custom_roiManager();
         }
             
         
@@ -174,22 +174,19 @@ public class menu extends PlugInFrame implements ActionListener {
             // Buggy
             IJ.run("Measure");
         }
-        
         else if (command == "Show Results"){
-            
-            //System.out.println(results);
-            // ResultsTable results = ResultsTable.getResultsTable();
-
-            // results.show(results.getTitle());
 
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
 
                 results.show("Results");
             }
-            System.out.println(WindowManager.getActiveTable());
         }
         else if (command == "Save Results") {
+            if (WindowManager.getActiveTable() == null) {
+                IJ.showMessage("No results table found");
+                return;
+            }
             ResultsTable results = ResultsTable.getResultsTable();
             try {
                 String[] title = WindowManager.getImageTitles();
