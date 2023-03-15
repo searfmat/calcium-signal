@@ -69,8 +69,8 @@ public class menu extends PlugInFrame implements ActionListener {
         showResults.setFont(font);
         panel.add(showResults);
         addButton("Set Measurements", false);
-        addButton("Show Results", true);
-        addButton("Save Results", true);
+        addButton("Show Results", false);
+        addButton("Save Results", false);
 
         add(panel);
 
@@ -171,6 +171,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
         }
         else if (command == "Set Measurements") {
+            // Buggy
             IJ.run("Measure");
         }
         
@@ -189,7 +190,15 @@ public class menu extends PlugInFrame implements ActionListener {
             System.out.println(WindowManager.getActiveTable());
         }
         else if (command == "Save Results") {
-
+            ResultsTable results = ResultsTable.getResultsTable();
+            try {
+                String[] title = WindowManager.getImageTitles();
+                results.saveAs("../" + title[0] + ".csv");
+                IJ.showMessage("CSV File saved to the same directory as Fiji as " + title[0]);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+                IJ.showMessage("There was an error saving the file.");
+            }
         }
     }
 }
