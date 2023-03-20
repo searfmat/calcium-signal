@@ -31,16 +31,23 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     private final String PYTHONSCRIPT_PATH = "plugins/CalciumSignal/pythonscript";
 
     Panel panel;
-    RoiManager rm;
+    RoiManager rm = RoiManager.getInstance();
     int cellMin;
     int cellMax;
     JFormattedTextField minField;
     JFormattedTextField maxField;
     Set<Roi> allRois = new HashSet<Roi>();
-    
+
+    // private static custom_roiManager; 
+
     custom_roiManager(){
         super("Custom RoiManager");
-        rm = new RoiManager();
+        if (rm == null){
+            rm = new RoiManager();
+
+            menu.createCellRoi(ResultsTable.getActiveTable(), rm);
+        }
+        
         cellMin = 20;
         cellMax = 200;
 
@@ -181,6 +188,11 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         rm.addRoi(roi);
         rm.runCommand("Show All");
     }
+
+
+    // public static custom_roiManager getManager(){
+    //     return this;
+    // }
 
     public void setMinMax(int std) {
 

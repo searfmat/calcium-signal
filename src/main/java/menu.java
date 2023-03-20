@@ -29,6 +29,10 @@ import java.util.*;
 public class menu extends PlugInFrame implements ActionListener {
 
     Panel panel;
+    // JPanel panel;
+    ResultsTable results = ResultsTable.getActiveTable();
+    Window crm_window = WindowManager.getFrame("Custom RoiManager");
+    Frame customRoiManager;
 
     menu(){
         super("Menu");
@@ -67,6 +71,13 @@ public class menu extends PlugInFrame implements ActionListener {
 
         add(panel);
 
+        // if (this.crm_window == null){
+        //     this.customRoiManager = new custom_roiManager();
+        // }
+        // else{
+        //     this.customRoiManager = WindowManager.getFrame("Custom RoiManager");
+        // }
+
         pack();
         GUI.center(this);
         setVisible(true);
@@ -81,6 +92,41 @@ public class menu extends PlugInFrame implements ActionListener {
         if (isDisabled) {b.setEnabled(isDisabled);}
         panel.add(b);        
     } 
+
+    public static void createCellRoi(ResultsTable results, RoiManager rm){
+
+        //if (crm == null){crm = new custom_roiManager();}
+        System.out.println(rm);
+        //Vars
+        double x;
+        double y;
+        double width;
+        double height;
+        int cornerDiameter = 20;
+        System.out.println("CREATE CELL ROI");
+        System.out.println(results);
+        //ResultsTable results = ResultsTable.getResultsTable();
+
+        double[] widths = results.getColumn("B-width");
+        double[] heights = results.getColumn("B-height");
+        double[] xs = results.getColumn("X");
+        double[] ys = results.getColumn("Y");
+
+        for(int i = 0; i < widths.length; i++) {
+
+            // This is used to make sure we have x and y at the center of the detected region
+            width = widths[i];
+            height = heights[i];
+            x = xs[i] - width/2;
+            y = ys[i] - height/2;
+
+            //Create ROI with Input: int x, int y, int width, int height, int cornerDiameter
+            Roi roi = new Roi((int)x, (int)y, (int)width, (int)height, cornerDiameter);
+        
+        rm.addRoi(roi);
+        rm.runCommand("Show All");
+        }
+    }
 
     @Override
     public void actionPerformed(ActionEvent e) {
@@ -100,15 +146,77 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Threshold Setting") {
             counter.run("");
+            counter.run("run");
+            this.results = ResultsTable.getActiveTable();
         }
         else if (command == "Custom RoiManager") {
-            custom_roiManager crm = new custom_roiManager();
+            Window crm_window = WindowManager.getFrame("Custom RoiManager");
+            if (crm_window == null){
+                this.customRoiManager = new custom_roiManager();
+
+                // custom_roiManager.createCellRoi(this.results, this.customRoiManager);
+
+                    //Add Roi to RoiManager
+                    //this.customRoiManager.addRoi(roi);
+                }
+            else {
+                // bring to front
+                WindowManager.toFront(crm_window);
+            }
         }
+            
+        
         else if (command == "ROI Manager") {
             RoiManager drm = new RoiManager();
         }   
+            RoiManager rm = RoiManager.getInstance();
+            // Window[] wins = WindowManager.getAllNonImageWindows();
+            // for (Window w : wins){
+            //     System.out.println(w);
+            // }
+            if (rm == null){
+
+                // double x;
+                // double y;
+                // double width;
+                // double height;
+                // int cornerDiameter = 20;
+
+                rm = RoiManager.getRoiManager();
+                
+                // double[] widths = this.results.getColumn("B-width");
+                // double[] heights = this.results.getColumn("B-height");
+                // double[] xs = this.results.getColumn("X");
+                // double[] ys = this.results.getColumn("Y");       
+                System.out.println(this.customRoiManager);
+                // this.results = ResultsTable.getActiveTable();
+                this.createCellRoi(this.results, rm);
+                // for(int i = 0; i < widths.length; i++) {
+
+                // // This is used to make sure we have x and y at the center of the detected region
+                // width = widths[i];
+                // height = heights[i];
+                // x = xs[i] - width/2 ;
+                // y = ys[i] - height/2;
+
+                // //Create ROI with Input: int x, int y, int width, int height, int cornerDiameter
+                // Roi roi = new Roi((int)x, (int)y, (int)width, (int)height, cornerDiameter);
+
+                // //Add Roi to RoiManager
+                // rm.addRoi(roi);
+                // rm.runCommand("Show All");
+            
+                // }  
+            }
+          else {
+            WindowManager.toFront(rm);
+            rm.runCommand("Show All");
+          }      
+        } 
         else if (command == "Save ROI set as...") {
 
+
+            System.out.println(RoiManager.getRoiManager());
         }
         else if (command == "Input ROI set") {
             
@@ -118,6 +226,24 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Set Measurments") {
 
+        else if (command == "Set Measurements") {
+            IJ.run("Measure");
+        }
+        
+        else if (command == "Show Results"){
+            
+            //System.out.println(results);
+            // ResultsTable results = ResultsTable.getResultsTable();
+
+            // results.show(results.getTitle());
+
+            if (WindowManager.getActiveTable() == null){
+                // ResultsTable results = ResultsTable.getResultsTable();
+
+                // results.show("Results");
+                System.out.println(this.results);
+            }
+            System.out.println(WindowManager.getActiveTable());
         }
         else if (command ==  "Save Results") {
 
