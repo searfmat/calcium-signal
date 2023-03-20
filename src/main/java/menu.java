@@ -13,6 +13,7 @@ import imageJ.plugins.PoorMan3DReg_;
 import ij.plugin.Grid;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
 import celldetection._3D_objects_counter;
@@ -69,7 +70,7 @@ public class menu extends PlugInFrame implements ActionListener {
         showResults.setFont(font);
         panel.add(showResults);
         addButton("Set Measurements", false);
-        addButton("Show Results", false);
+        addButton("Show Results Table", false);
         addButton("Save Results", false);
 
         add(panel);
@@ -81,12 +82,12 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     void addButton(String label, boolean isDisabled) {
-        Button b = new Button(label);
-        b.setMaximumSize(new Dimension(200, 350));
-        b.addActionListener(this);
-        b.addKeyListener(IJ.getInstance());
-        b.setEnabled(!isDisabled);
-        panel.add(b);        
+        Button newButton = new Button(label);
+        newButton.setMaximumSize(new Dimension(200, 350));
+        newButton.addActionListener(this);
+        newButton.addKeyListener(IJ.getInstance());
+        newButton.setEnabled(!isDisabled);
+        panel.add(newButton);        
     } 
 
     @Override
@@ -174,7 +175,7 @@ public class menu extends PlugInFrame implements ActionListener {
             // Buggy
             IJ.run("Measure");
         }
-        else if (command == "Show Results"){
+        else if (command == "Show Results Table"){
 
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
@@ -187,13 +188,15 @@ public class menu extends PlugInFrame implements ActionListener {
                 return;
             }
             ResultsTable results = ResultsTable.getResultsTable();
-            try {
-                String[] title = WindowManager.getImageTitles();
-                results.saveAs("../" + title[0] + "-results.csv");
-                IJ.showMessage("CSV File saved to the same directory as Fiji as " + title[0] + "-results.csv");
-            } catch (IOException e1) {
-                e1.printStackTrace();
-                IJ.showMessage("There was an error saving the file.");
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setDialogTitle("Select Folder");
+            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setAcceptAllFileFilterUsed(false);
+
+            int returnVal = fileChooser.showSaveDialog(fileChooser);
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                results.save(fileChooser.getSelectedFile().getAbsolutePath() + "/Results.csv");
             }
         }
     }

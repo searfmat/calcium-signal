@@ -59,7 +59,7 @@ public class CalciumSignal_ implements PlugIn {
         // WindowManager.removeWindow(WindowManager.getFrontWindow());
         // WindowManager.toFront(roiWindow);
 
-        // runRoiManager();
+        runRoiManager();
         runMenu();
     }
     void runRoiManager(){
