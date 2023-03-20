@@ -167,8 +167,7 @@ public class menu extends PlugInFrame implements ActionListener {
             
         
         else if (command == "ROI Manager") {
-            RoiManager drm = new RoiManager();
-        }   
+            RoiManager drm = new RoiManager();   
             RoiManager rm = RoiManager.getInstance();
             // Window[] wins = WindowManager.getAllNonImageWindows();
             // for (Window w : wins){
@@ -206,13 +205,13 @@ public class menu extends PlugInFrame implements ActionListener {
                 // rm.addRoi(roi);
                 // rm.runCommand("Show All");
             
-                // }  
-            }
-          else {
-            WindowManager.toFront(rm);
-            rm.runCommand("Show All");
-          }      
-        } 
+                }  
+                else {
+                WindowManager.toFront(rm);
+                rm.runCommand("Show All");
+                }   
+        }   
+         
         else if (command == "Save ROI set as...") {
 
 
@@ -225,6 +224,8 @@ public class menu extends PlugInFrame implements ActionListener {
 
         }
         else if (command == "Set Measurments") {
+
+        }
 
         else if (command == "Set Measurements") {
             IJ.run("Measure");

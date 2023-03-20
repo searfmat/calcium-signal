@@ -1,4 +1,3 @@
-<<<<<<< Updated upstream
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
@@ -30,6 +29,10 @@ import java.util.*;
 public class menu extends PlugInFrame implements ActionListener {
 
     Panel panel;
+    // JPanel panel;
+    ResultsTable results = ResultsTable.getActiveTable();
+    Window crm_window = WindowManager.getFrame("Custom RoiManager");
+    Frame customRoiManager;
 
     menu(){
         super("Menu");
@@ -68,143 +71,6 @@ public class menu extends PlugInFrame implements ActionListener {
 
         add(panel);
 
-        pack();
-        GUI.center(this);
-        setVisible(true);
-
-    }
-
-    void addButton(String label, boolean isDisabled) {
-        Button b = new Button(label);
-        b.setMaximumSize(new Dimension(150, 300));
-        b.addActionListener(this);
-        b.addKeyListener(IJ.getInstance());
-        if (isDisabled) {b.setEnabled(isDisabled);}
-        panel.add(b);        
-    } 
-
-    @Override
-    public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
-        _3D_objects_counter counter = new _3D_objects_counter();
-        PoorMan3DReg_ reg = new PoorMan3DReg_();
-
-
-       
-
-        if (command == "Make a Copy") {
-            // ImagePlus img = WindowManager.getImage("post-reg");
-            IJ.run("Duplicate...","title=Copy");
-        } 
-        else if (command == "Registration") {
-            reg.run("");
-        }
-        else if (command == "Threshold Setting") {
-            counter.run("");
-        }
-        else if (command == "Custom RoiManager") {
-            custom_roiManager crm = new custom_roiManager();
-        }
-        else if (command == "ROI Manager") {
-            RoiManager drm = new RoiManager();
-        }   
-        else if (command == "Save ROI set as...") {
-
-            
-        }
-        else if (command == "Input ROI set") {
-
-        }
-        else if (command == "Apply ROI to video") {
-
-        }
-        else if (command == "Set Measurments") {
-
-        }
-        else if (command ==  "Save Results") {
-
-        }
-    }
-}
-=======
-import ij.IJ;
-import ij.ImageJ;
-import ij.ImagePlus;
-import ij.WindowManager;
-import ij.gui.GUI;
-import ij.gui.Plot;
-import ij.gui.PlotWindow;
-import ij.gui.Roi;
-import ij.measure.ResultsTable;
-import ij.plugin.frame.PlugInFrame;
-import ij.plugin.frame.RoiManager;
-import imageJ.plugins.PoorMan3DReg_;
-import ij.plugin.Grid;
-
-import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-
-import celldetection._3D_objects_counter;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.*;
-
-public class menu extends PlugInFrame implements ActionListener {
-
-    Panel panel;
-    // JPanel panel;
-    ResultsTable results = ResultsTable.getActiveTable();
-    Window crm_window = WindowManager.getFrame("Custom RoiManager");
-    Frame customRoiManager;
-
-    menu(){
-        super("Menu");
-
-        ImageJ ij = IJ.getInstance();
-        addKeyListener(ij);
-        WindowManager.addWindow(this);
-
-        panel = new Panel();
-        panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
-        Font font = new Font("Verdana", Font.BOLD, 16);
-
-        // panel.setSize(600, 400);
-        
-
-        panel.add(Box.createHorizontalStrut(200));
-        // panel.setSize(700, 600);
-
-        addButton("Make a Copy", false);
-        addButton("Registration", false);
-        
-        Label cellDetectionLabel = new Label("Cell Detection", Label.CENTER);
-        cellDetectionLabel.setFont(font);
-        panel.add(cellDetectionLabel);
-        addButton("Threshold Setting", false);
-        addButton("Custom RoiManager", false);
-        addButton("ROI Manager", false);
-        addButton("Save ROI set as...", false);
-        addButton("Input ROI set", true);
-        addButton("Apply ROI to video", true);
-
-        Label showResults = new Label("Show results", Label.CENTER);
-        showResults.setFont(font);
-        panel.add(showResults);
-        addButton("Set Measurements", false);
-        addButton("Show Results", false);
-        addButton("Save Results", true);
-
-        add(panel);
-
         // if (this.crm_window == null){
         //     this.customRoiManager = new custom_roiManager();
         // }
@@ -220,10 +86,10 @@ public class menu extends PlugInFrame implements ActionListener {
 
     void addButton(String label, boolean isDisabled) {
         Button b = new Button(label);
-        b.setMaximumSize(new Dimension(200, 350));
+        b.setMaximumSize(new Dimension(150, 300));
         b.addActionListener(this);
         b.addKeyListener(IJ.getInstance());
-        b.setEnabled(!isDisabled);
+        if (isDisabled) {b.setEnabled(isDisabled);}
         panel.add(b);        
     } 
 
@@ -268,27 +134,18 @@ public class menu extends PlugInFrame implements ActionListener {
         _3D_objects_counter counter = new _3D_objects_counter();
         PoorMan3DReg_ reg = new PoorMan3DReg_();
 
+
+       
+
         if (command == "Make a Copy") {
             // ImagePlus img = WindowManager.getImage("post-reg");
             IJ.run("Duplicate...","title=Copy");
         } 
         else if (command == "Registration") {
-
-            int imageCount = WindowManager.getImageCount();
-            int[] idList = WindowManager.getIDList();
-
-            for (int id : idList) {
-            ImagePlus img = WindowManager.getImage(id);
-            WindowManager.setTempCurrentImage(img);
-            reg.run("run");
-
-            IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
-            IJ.run("Enhance Contrast", "saturated=4 normalize");
-            IJ.run("Duplicate...","title=post-reg");
-
-            }
+            reg.run("");
         }
         else if (command == "Threshold Setting") {
+            counter.run("");
             counter.run("run");
             this.results = ResultsTable.getActiveTable();
         }
@@ -310,6 +167,7 @@ public class menu extends PlugInFrame implements ActionListener {
             
         
         else if (command == "ROI Manager") {
+            RoiManager drm = new RoiManager();   
             RoiManager rm = RoiManager.getInstance();
             // Window[] wins = WindowManager.getAllNonImageWindows();
             // for (Window w : wins){
@@ -347,23 +205,28 @@ public class menu extends PlugInFrame implements ActionListener {
                 // rm.addRoi(roi);
                 // rm.runCommand("Show All");
             
-                // }  
-            }
-          else {
-            WindowManager.toFront(rm);
-            rm.runCommand("Show All");
-          }      
-        } 
+                }  
+                else {
+                WindowManager.toFront(rm);
+                rm.runCommand("Show All");
+                }   
+        }   
+         
         else if (command == "Save ROI set as...") {
+
 
             System.out.println(RoiManager.getRoiManager());
         }
         else if (command == "Input ROI set") {
-
+            
         }
         else if (command == "Apply ROI to video") {
 
         }
+        else if (command == "Set Measurments") {
+
+        }
+
         else if (command == "Set Measurements") {
             IJ.run("Measure");
         }
@@ -383,9 +246,8 @@ public class menu extends PlugInFrame implements ActionListener {
             }
             System.out.println(WindowManager.getActiveTable());
         }
-        else if (command == "Save Results") {
+        else if (command ==  "Save Results") {
 
         }
     }
 }
->>>>>>> Stashed changes

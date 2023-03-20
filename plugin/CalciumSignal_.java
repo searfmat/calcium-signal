@@ -46,16 +46,6 @@ public class CalciumSignal_ implements PlugIn {
          */
 
         //Gets active table and saves
-<<<<<<< Updated upstream
-        String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
-        ResultsTable results = ResultsTable.getResultsTable();
-
-        try {
-            results.saveAs(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-=======
         // String path =  "../src/main/java/Sample.csv";
         // ResultsTable results = ResultsTable.getResultsTable();
 
@@ -64,16 +54,11 @@ public class CalciumSignal_ implements PlugIn {
         // } catch (IOException e) {
         //     e.printStackTrace();
         // }
->>>>>>> Stashed changes
         // WindowManager.removeWindow(WindowManager.getFrontWindow());
         // WindowManager.removeWindow(WindowManager.getFrontWindow());
         // WindowManager.toFront(roiWindow);
 
-<<<<<<< Updated upstream
-        runRoiManager(); 
-=======
         //runRoiManager();
->>>>>>> Stashed changes
         runMenu();
     }
     void runRoiManager(){
