@@ -13,6 +13,7 @@ import imageJ.plugins.PoorMan3DReg_;
 import ij.plugin.Grid;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
@@ -189,14 +190,21 @@ public class menu extends PlugInFrame implements ActionListener {
             }
             ResultsTable results = ResultsTable.getResultsTable();
             JFileChooser fileChooser = new JFileChooser();
+            FileFilter csvFilter = new FileNameExtensionFilter("CSV file", ".csv");
+            fileChooser.setFileFilter(csvFilter);
             fileChooser.setDialogTitle("Select Folder");
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fileChooser.setAcceptAllFileFilterUsed(false);
 
             int returnVal = fileChooser.showSaveDialog(fileChooser);
             
             if(returnVal == JFileChooser.APPROVE_OPTION) {
-                results.save(fileChooser.getSelectedFile().getAbsolutePath() + "/Results.csv");
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                if (fileName.endsWith(".csv")) {
+                    results.save(fileName);
+                }
+                else {
+                    results.save(fileName + ".csv");
+                }
             }
         }
     }
