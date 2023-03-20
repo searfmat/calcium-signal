@@ -50,23 +50,23 @@ public class CalciumSignal_ implements PlugIn {
         String path =  "../src/main/java/Sample.csv";
         ResultsTable results = ResultsTable.getResultsTable();
 
-        try {
-            results.saveAs(path);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        // try {
+        //     results.saveAs(path);
+        // } catch (IOException e) {
+        //     e.printStackTrace();
+        // }
         // WindowManager.removeWindow(WindowManager.getFrontWindow());
         // WindowManager.removeWindow(WindowManager.getFrontWindow());
         // WindowManager.toFront(roiWindow);
 
-        // runRoiManager();
+        //runRoiManager();
         runMenu();
     }
     void runRoiManager(){
 
         //Creates RoiManager
         custom_roiManager crm = new custom_roiManager();
-
+    
         //Vars
         double x;
         double y;
