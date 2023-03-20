@@ -11,6 +11,7 @@ import java.awt.*;
 import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.*;
@@ -83,20 +84,26 @@ public class CellManager extends PlugInFrame implements ActionListener {
             }
             System.out.println(selected);
         } else if (command == "Generate All Plots") {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new java.io.File("."));
+            chooser.setDialogTitle("Select Folder");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            chooser.showOpenDialog(null);
+            File folder = chooser.getSelectedFile();
             for (int i = 0; i < cells.size(); i++) {
                 cells.get(i).generateNewPlot(false);
-                cells.get(i).writegraph();
+                cells.get(i).writegraph(folder);
             }
             try {
-                generateCSV();
+                generateCSV(folder);
             } catch (IOException e1) {
                 e1.printStackTrace();
             }
         }
     }
 
-    public void generateCSV() throws IOException {
-        System.out.println("GENERATING CSV");
+    public void generateCSV(File f) throws IOException {
         ArrayList<String[]> csvData = new ArrayList<>();
         String[] header = {"Cell Number", "Peak Number", "Frame", "Intensity"};
         csvData.add(header);
@@ -107,7 +114,7 @@ public class CellManager extends PlugInFrame implements ActionListener {
             }
         }
 
-        try (CSVWriter writer = new CSVWriter(new FileWriter("C:/Users/Matthew/Desktop/TestCells/TestCells.csv"))) {
+        try (CSVWriter writer = new CSVWriter(new FileWriter(f.toPath() + File.separator + "TestCells.csv"))) {
             writer.writeAll(csvData);
         }
     }
