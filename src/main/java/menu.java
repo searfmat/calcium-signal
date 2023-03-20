@@ -13,6 +13,8 @@ import imageJ.plugins.PoorMan3DReg_;
 import ij.plugin.Grid;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.NumberFormatter;
 
 import celldetection._3D_objects_counter;
@@ -69,8 +71,8 @@ public class menu extends PlugInFrame implements ActionListener {
         showResults.setFont(font);
         panel.add(showResults);
         addButton("Set Measurements", false);
-        addButton("Show Results", true);
-        addButton("Save Results", true);
+        addButton("Show Results Table", false);
+        addButton("Save Results", false);
 
         add(panel);
 
@@ -81,12 +83,12 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     void addButton(String label, boolean isDisabled) {
-        Button b = new Button(label);
-        b.setMaximumSize(new Dimension(200, 350));
-        b.addActionListener(this);
-        b.addKeyListener(IJ.getInstance());
-        b.setEnabled(!isDisabled);
-        panel.add(b);        
+        Button newButton = new Button(label);
+        newButton.setMaximumSize(new Dimension(200, 350));
+        newButton.addActionListener(this);
+        newButton.addKeyListener(IJ.getInstance());
+        newButton.setEnabled(!isDisabled);
+        panel.add(newButton);        
     } 
 
     @Override
@@ -178,26 +180,40 @@ public class menu extends PlugInFrame implements ActionListener {
 
         }
         else if (command == "Set Measurements") {
+            // Buggy
             IJ.run("Measure");
         }
-        
-        else if (command == "Show Results"){
-            
-            //System.out.println(results);
-            // ResultsTable results = ResultsTable.getResultsTable();
-
-            // results.show(results.getTitle());
+        else if (command == "Show Results Table"){
 
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
-
                 results.show("Results");
                 //System.out.println();
             }
-            System.out.println(WindowManager.getActiveTable());
         }
         else if (command == "Save Results") {
+            if (WindowManager.getActiveTable() == null) {
+                IJ.showMessage("No results table found");
+                return;
+            }
+            ResultsTable results = ResultsTable.getResultsTable();
+            JFileChooser fileChooser = new JFileChooser();
+            FileFilter csvFilter = new FileNameExtensionFilter("CSV file", ".csv");
+            fileChooser.setFileFilter(csvFilter);
+            fileChooser.setDialogTitle("Select Folder");
+            fileChooser.setAcceptAllFileFilterUsed(false);
 
+            int returnVal = fileChooser.showSaveDialog(fileChooser);
+            
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                if (fileName.endsWith(".csv")) {
+                    results.save(fileName);
+                }
+                else {
+                    results.save(fileName + ".csv");
+                }
+            }
         }
     }
 }
