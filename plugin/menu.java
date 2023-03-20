@@ -46,11 +46,12 @@ public class menu extends PlugInFrame implements ActionListener {
 
         panel = new Panel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+
         // panel.setSize(600, 400);
         
 
-        // panel.add(Box.createHorizontalStrut(200));
-        panel.setSize(700, 600);
+        panel.add(Box.createHorizontalStrut(200));
+        // panel.setSize(700, 600);
 
         addButton("Make a Copy", false);
         addButton("Registration", false);
