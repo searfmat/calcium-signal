@@ -14,6 +14,9 @@ import ij.plugin.Grid;
 
 import celldetection._3D_objects_counter;
 
+import javax.swing.*;
+import javax.swing.text.NumberFormatter;
+
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -43,12 +46,20 @@ public class menu extends PlugInFrame implements ActionListener {
 
         panel = new Panel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
+<<<<<<< Updated upstream
 
         // panel.setSize(600, 400);
         
 
         panel.add(Box.createHorizontalStrut(200));
         // panel.setSize(700, 600);
+=======
+        // panel.setSize(600, 400);
+        
+
+        // panel.add(Box.createHorizontalStrut(200));
+        panel.setSize(700, 600);
+>>>>>>> Stashed changes
 
         addButton("Make a Copy", false);
         addButton("Registration", false);
