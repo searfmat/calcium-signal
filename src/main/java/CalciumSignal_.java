@@ -20,27 +20,27 @@ public class CalciumSignal_ implements PlugIn {
         -- IMAGE REGISTRATION AND EDGE DETECTION --
          */
          
-        int imageCount = WindowManager.getImageCount();
-        int[] idList = WindowManager.getIDList();
-        PoorMan3DReg_ reg = new PoorMan3DReg_();
-        _3D_objects_counter counter = new _3D_objects_counter();
+        // int imageCount = WindowManager.getImageCount();
+        // int[] idList = WindowManager.getIDList();
+        // PoorMan3DReg_ reg = new PoorMan3DReg_();
+        // _3D_objects_counter counter = new _3D_objects_counter();
 
-        if (imageCount < 1) {
-            IJ.showMessage("Calcium Signal", "No image found.");
-            return;
-        }
+        // if (imageCount < 1) {
+        //     IJ.showMessage("Calcium Signal", "No image found.");
+        //     return;
+        // }
 
-        for (int id : idList) {
-            ImagePlus img = WindowManager.getImage(id);
-            WindowManager.setTempCurrentImage(img);
-            reg.run(arg);
+        // for (int id : idList) {
+        //     ImagePlus img = WindowManager.getImage(id);
+        //     WindowManager.setTempCurrentImage(img);
+        //     reg.run(arg);
 
-            IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
-            IJ.run("Enhance Contrast", "saturated=4 normalize");
-            IJ.run("Duplicate...","title=post-reg");
+        //     IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
+        //     IJ.run("Enhance Contrast", "saturated=4 normalize");
+        //     IJ.run("Duplicate...","title=post-reg");
 
-            counter.run(arg);
-        }
+        //     counter.run(arg);
+        // }
 
         /*
         -- ROI MANAGER --

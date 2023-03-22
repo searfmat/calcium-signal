@@ -153,6 +153,11 @@ public class menu extends PlugInFrame implements ActionListener {
             int imageCount = WindowManager.getImageCount();
             int[] idList = WindowManager.getIDList();
 
+            if (imageCount < 1) {
+            IJ.showMessage("Calcium Signal", "No image found.");
+            return;
+            }
+            
             for (int id : idList) {
             ImagePlus img = WindowManager.getImage(id);
             WindowManager.setTempCurrentImage(img);
