@@ -1,35 +1,30 @@
+import java.awt.Button;
+import java.awt.Dimension;
+import java.awt.Font;
+import java.awt.Frame;
+import java.awt.Label;
+import java.awt.Panel;
+import java.awt.Window;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.JFileChooser;
+import javax.swing.filechooser.FileFilter;
+import javax.swing.filechooser.FileNameExtensionFilter;
+
+import celldetection._3D_objects_counter;
 import ij.IJ;
 import ij.ImageJ;
 import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.GUI;
-import ij.gui.Plot;
-import ij.gui.PlotWindow;
 import ij.gui.Roi;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import imageJ.plugins.PoorMan3DReg_;
-import ij.plugin.Grid;
-
-import celldetection._3D_objects_counter;
-
-import javax.swing.*;
-import javax.swing.filechooser.FileFilter;
-import javax.swing.filechooser.FileNameExtensionFilter;
-import javax.swing.text.NumberFormatter;
-
-import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.*;
 
 public class menu extends PlugInFrame implements ActionListener {
 
@@ -150,7 +145,7 @@ public class menu extends PlugInFrame implements ActionListener {
         } 
         else if (command == "Registration") {
 
-            int imageCount = WindowManager.getImageCount();
+            WindowManager.getImageCount();
             int[] idList = WindowManager.getIDList();
 
             for (int id : idList) {
@@ -207,7 +202,7 @@ public class menu extends PlugInFrame implements ActionListener {
                 // double[] ys = this.results.getColumn("Y");       
                 System.out.println(this.customRoiManager);
                 // this.results = ResultsTable.getActiveTable();
-                this.createCellRoi(this.results, rm);
+                menu.createCellRoi(this.results, rm);
                 // for(int i = 0; i < widths.length; i++) {
 
                 // // This is used to make sure we have x and y at the center of the detected region
