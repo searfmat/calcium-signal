@@ -145,7 +145,7 @@ public class menu extends PlugInFrame implements ActionListener {
         } 
         else if (command == "Registration") {
 
-            WindowManager.getImageCount();
+            int imageCount = WindowManager.getImageCount();
             int[] idList = WindowManager.getIDList();
 
             if (imageCount < 1) {
