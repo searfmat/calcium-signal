@@ -347,7 +347,12 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Set Measurements") {
             // Buggy
-            IJ.run("Measure");
+            try{
+                IJ.run("Set Measurements...");
+            }
+            catch (Exception ex){
+                System.out.println(ex);
+            }
         }
         else if (command == "Show Results Table"){
 
