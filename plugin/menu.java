@@ -28,6 +28,7 @@ import ij.ImagePlus;
 import ij.WindowManager;
 import ij.gui.GUI;
 import ij.gui.Roi;
+import ij.gui.Overlay;
 import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
@@ -43,6 +44,7 @@ public class menu extends PlugInFrame implements ActionListener {
     Window crm_window = WindowManager.getFrame("Custom RoiManager");
     Frame customRoiManager;
     RoiManager rm;
+    ImagePlus active_video;
 
     Button btnMakeCopy = new Button();
     Button btnRegistration = new Button();
@@ -85,7 +87,7 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("ROI Manager", false, btnRoiManager);
         addButton("Save ROI set as...", false, btnSaveRoi);
         addButton("Input ROI set", false, btnInputRoi);
-        addButton("Apply ROI to video", true, btnApplyRoi);
+        addButton("Apply ROI to video", false, btnApplyRoi);
 
         Label showResults = new Label("Show results", Label.CENTER);
         showResults.setFont(font);
@@ -153,24 +155,6 @@ public class menu extends PlugInFrame implements ActionListener {
         }
     }
 
-    public static ArrayList<ArrayList<String>> transpose(ArrayList<ArrayList<String>> matrixIn) {
-        ArrayList<ArrayList<String>> matrixOut = new ArrayList<ArrayList<String>>();
-        if (!matrixIn.isEmpty()) {
-            int noOfElementsInList = matrixIn.get(0).size();
-
-            for (int i = 0; i < noOfElementsInList; i++) {
-                ArrayList<String> col = new ArrayList<String>();
-
-                    for (ArrayList<String> row : matrixIn) {
-                        col.add(row.get(i));
-                        }
-
-                matrixOut.add(col);
-                }
-        }
-        return matrixOut;
-    }
-
     @Override   
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
@@ -192,8 +176,8 @@ public class menu extends PlugInFrame implements ActionListener {
             }
             
             for (int id : idList) {
-            ImagePlus img = WindowManager.getImage(id);
-            WindowManager.setTempCurrentImage(img);
+            active_video = WindowManager.getImage(id);
+            WindowManager.setTempCurrentImage(active_video);
             reg.run("run");
 
             IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
@@ -204,17 +188,18 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Threshold Setting") {
             counter.run("run");
-            this.results = ResultsTable.getActiveTable();
+            results = ResultsTable.getActiveTable();
             if (rm != null){
                 rm.reset();
+                
             }
             rm = RoiManager.getRoiManager();
-            menu.createCellRoi(this.results, rm);
+            createCellRoi(results, rm);
         }
         else if (command == "Custom RoiManager") {
             Window crm_window = WindowManager.getFrame("Custom RoiManager");
             if (crm_window == null){
-                this.customRoiManager = new custom_roiManager();
+                customRoiManager = new custom_roiManager();
 
                 // custom_roiManager.createCellRoi(this.results, this.customRoiManager);
 
@@ -248,9 +233,8 @@ public class menu extends PlugInFrame implements ActionListener {
                 // double[] heights = this.results.getColumn("B-height");
                 // double[] xs = this.results.getColumn("X");
                 // double[] ys = this.results.getColumn("Y");       
-                System.out.println(this.customRoiManager);
                 // this.results = ResultsTable.getActiveTable();
-                menu.createCellRoi(this.results, rm);
+                menu.createCellRoi(results, rm);
                 // for(int i = 0; i < widths.length; i++) {
 
                 // // This is used to make sure we have x and y at the center of the detected region
@@ -354,6 +338,11 @@ public class menu extends PlugInFrame implements ActionListener {
             }
         }
         else if (command == "Apply ROI to video") {
+            Overlay overlay = active_video.getOverlay();
+            if (overlay != null){
+                overlay.clear();
+            }
+            rm.moveRoisToOverlay(active_video);
 
         }
         else if (command == "Set Measurements") {
