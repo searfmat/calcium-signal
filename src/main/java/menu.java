@@ -7,6 +7,13 @@ import java.awt.Panel;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.io.File;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.FileNotFoundException;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
@@ -26,13 +33,29 @@ import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import imageJ.plugins.PoorMan3DReg_;
 
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
 public class menu extends PlugInFrame implements ActionListener {
 
     Panel panel;
-    // JPanel panel;
     ResultsTable results = ResultsTable.getActiveTable();
     Window crm_window = WindowManager.getFrame("Custom RoiManager");
     Frame customRoiManager;
+    RoiManager rm;
+
+    Button btnMakeCopy = new Button();
+    Button btnRegistration = new Button();
+    Button btnThreshold = new Button();
+    Button btnCustomRoi = new Button();
+    Button btnRoiManager = new Button();
+    Button btnSaveRoi = new Button();
+    Button btnInputRoi = new Button();
+    Button btnApplyRoi = new Button();
+    Button btnSetMeasurements = new Button();
+    Button btnShowResults = new Button();
+    Button btnSaveResults = new Button();
+
 
     menu(){
         super("Menu");
@@ -51,25 +74,25 @@ public class menu extends PlugInFrame implements ActionListener {
         panel.add(Box.createHorizontalStrut(200));
         // panel.setSize(700, 600);
 
-        addButton("Make a Copy", false);
-        addButton("Registration", false);
+        addButton("Make a Copy", false, btnMakeCopy);
+        addButton("Registration", false, btnRegistration);
         
         Label cellDetectionLabel = new Label("Cell Detection", Label.CENTER);
         cellDetectionLabel.setFont(font);
         panel.add(cellDetectionLabel);
-        addButton("Threshold Setting", false);
-        addButton("Custom RoiManager", false);
-        addButton("ROI Manager", false);
-        addButton("Save ROI set as...", true);
-        addButton("Input ROI set", true);
-        addButton("Apply ROI to video", true);
+        addButton("Threshold Setting", false, btnThreshold);
+        addButton("Custom RoiManager", false, btnCustomRoi);
+        addButton("ROI Manager", false, btnRoiManager);
+        addButton("Save ROI set as...", false, btnSaveRoi);
+        addButton("Input ROI set", false, btnInputRoi);
+        addButton("Apply ROI to video", true, btnApplyRoi);
 
         Label showResults = new Label("Show results", Label.CENTER);
         showResults.setFont(font);
         panel.add(showResults);
-        addButton("Set Measurements", false);
-        addButton("Show Results Table", false);
-        addButton("Save Results", false);
+        addButton("Set Measurements", false, btnSetMeasurements);
+        addButton("Show Results Table", false, btnShowResults);
+        addButton("Save Results", false, btnSaveResults);
 
         add(panel);
 
@@ -86,8 +109,8 @@ public class menu extends PlugInFrame implements ActionListener {
 
     }
 
-    void addButton(String label, boolean isDisabled) {
-        Button newButton = new Button(label);
+    void addButton(String label, boolean isDisabled, Button newButton) {
+        newButton = new Button(label);
         newButton.setMaximumSize(new Dimension(200, 350));
         newButton.addActionListener(this);
         newButton.addKeyListener(IJ.getInstance());
@@ -130,14 +153,29 @@ public class menu extends PlugInFrame implements ActionListener {
         }
     }
 
-    @Override
+    public static ArrayList<ArrayList<String>> transpose(ArrayList<ArrayList<String>> matrixIn) {
+        ArrayList<ArrayList<String>> matrixOut = new ArrayList<ArrayList<String>>();
+        if (!matrixIn.isEmpty()) {
+            int noOfElementsInList = matrixIn.get(0).size();
+
+            for (int i = 0; i < noOfElementsInList; i++) {
+                ArrayList<String> col = new ArrayList<String>();
+
+                    for (ArrayList<String> row : matrixIn) {
+                        col.add(row.get(i));
+                        }
+
+                matrixOut.add(col);
+                }
+        }
+        return matrixOut;
+    }
+
+    @Override   
     public void actionPerformed(ActionEvent e) {
         String command = e.getActionCommand();
         _3D_objects_counter counter = new _3D_objects_counter();
         PoorMan3DReg_ reg = new PoorMan3DReg_();
-
-
-       
 
         if (command == "Make a Copy") {
             // ImagePlus img = WindowManager.getImage("post-reg");
@@ -167,6 +205,11 @@ public class menu extends PlugInFrame implements ActionListener {
         else if (command == "Threshold Setting") {
             counter.run("run");
             this.results = ResultsTable.getActiveTable();
+            if (rm != null){
+                rm.reset();
+            }
+            rm = RoiManager.getRoiManager();
+            menu.createCellRoi(this.results, rm);
         }
         else if (command == "Custom RoiManager") {
             Window crm_window = WindowManager.getFrame("Custom RoiManager");
@@ -231,11 +274,84 @@ public class menu extends PlugInFrame implements ActionListener {
         }   
          
         else if (command == "Save ROI set as...") {
+            JFileChooser fileChooser = new JFileChooser();
+            FileFilter roiFilter = new FileNameExtensionFilter("ROI file", ".roi");
+            fileChooser.setFileFilter(roiFilter);
+            fileChooser.setDialogTitle("Select Folder");
+            fileChooser.setAcceptAllFileFilterUsed(false);
 
-            
+            int returnVal = fileChooser.showSaveDialog(fileChooser);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                if (fileName.endsWith(".roi")) {
+                    results.save(fileName);
+                }
+                else {
+                    results.save(fileName + ".roi");
+                }
+            }
+
         }
         else if (command == "Input ROI set") {
+            rm = RoiManager.getInstance();
+            Roi[] rois = rm.getRoisAsArray();
             
+            if (rois.length > 0){
+                rm.reset();
+            }
+
+            JFileChooser fileChooser = new JFileChooser();
+
+            
+            // rm.open();
+
+            // FileFilter roiFilter = new FileNameExtensionFilter("ROI file", ".roi");
+            // fileChooser.setFileFilter(roiFilter);
+            fileChooser.setDialogTitle("Select ROI File");
+            // fileChooser.setAcceptAllFileFilterUsed(false);
+
+            int returnVal = fileChooser.showOpenDialog(fileChooser);
+
+            if(returnVal == JFileChooser.APPROVE_OPTION) {
+                String fileName = fileChooser.getSelectedFile().getAbsolutePath();
+                BufferedReader br;
+                if (fileName.endsWith(".roi")) {
+                    File file = fileChooser.getSelectedFile();
+                    try{
+                        String line;
+                        ArrayList<ArrayList<String>> roi_data = new ArrayList<ArrayList<String>>();  
+                        br = new BufferedReader(new FileReader(file));
+
+                        // System.out.println(results.hdr);
+                        results.reset();
+                        results.updateResults();
+                        String str_headings = br.readLine();
+                        String[] headings = str_headings.split("\t");
+
+                        while ((line = br.readLine()) != null){
+                            // System.out.println(line);
+                            String[] values = line.split("\t");
+                            // roi_data.add(new ArrayList<String>(Arrays.asList(values)));
+                            results.addRow();
+                            for (int i=2; i<headings.length; i+=1){
+                                results.addValue(headings[i], Double.parseDouble(values[i]));
+                            }
+                            results.addLabel(values[1]);
+                            results.updateResults();
+                            System.out.println(results.size());
+                        }
+                        
+                        createCellRoi(results, rm);
+                    }           
+                    catch(Exception ex){System.out.println(ex);}
+                    
+
+                }
+                else {
+                    System.out.println("NOT AN ROI FILE");
+                }
+            }
         }
         else if (command == "Apply ROI to video") {
 
