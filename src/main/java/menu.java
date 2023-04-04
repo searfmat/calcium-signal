@@ -76,8 +76,8 @@ public class menu extends PlugInFrame implements ActionListener {
         panel.add(Box.createHorizontalStrut(200));
         // panel.setSize(700, 600);
 
-        addButton("Make a Copy", false, btnMakeCopy);
-        addButton("Registration", false, btnRegistration);
+        addButton("Make a Copy", true, btnMakeCopy);
+        addButton("Registration", true, btnRegistration);
         
         Label cellDetectionLabel = new Label("Cell Detection", Label.CENTER);
         cellDetectionLabel.setFont(font);
@@ -86,7 +86,7 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("Custom RoiManager", false, btnCustomRoi);
         addButton("ROI Manager", false, btnRoiManager);
         addButton("Save ROI set as...", false, btnSaveRoi);
-        addButton("Input ROI set", false, btnInputRoi);
+        addButton("Input ROI set", true, btnInputRoi);
         addButton("Apply ROI to video", false, btnApplyRoi);
 
         Label showResults = new Label("Show results", Label.CENTER);
@@ -111,12 +111,12 @@ public class menu extends PlugInFrame implements ActionListener {
 
     }
 
-    void addButton(String label, boolean isDisabled, Button newButton) {
-        newButton = new Button(label);
+    void addButton(String label, boolean isEnabled, Button newButton) {
+        newButton.setLabel(label);
         newButton.setMaximumSize(new Dimension(200, 350));
         newButton.addActionListener(this);
         newButton.addKeyListener(IJ.getInstance());
-        newButton.setEnabled(!isDisabled);
+        newButton.setEnabled(isEnabled);
         panel.add(newButton); 
     } 
 
@@ -184,6 +184,8 @@ public class menu extends PlugInFrame implements ActionListener {
             IJ.run("Enhance Contrast", "saturated=4 normalize");
             IJ.run("Duplicate...","title=post-reg");
 
+            btnThreshold.setEnabled(true);
+
             }
         }
         else if (command == "Threshold Setting") {
@@ -195,6 +197,13 @@ public class menu extends PlugInFrame implements ActionListener {
             }
             rm = RoiManager.getRoiManager();
             createCellRoi(results, rm);
+            btnRoiManager.setEnabled(true);
+            btnCustomRoi.setEnabled(true);
+            btnSaveRoi.setEnabled(true);
+            btnShowResults.setEnabled(true);
+            btnSaveResults.setEnabled(true);
+            btnSetMeasurements.setEnabled(true);
+            btnApplyRoi.setEnabled(true);
         }
         else if (command == "Custom RoiManager") {
             Window crm_window = WindowManager.getFrame("Custom RoiManager");
@@ -210,6 +219,7 @@ public class menu extends PlugInFrame implements ActionListener {
                 // bring to front
                 WindowManager.toFront(crm_window);
             }
+            
         }
             
         
