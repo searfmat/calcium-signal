@@ -10,19 +10,15 @@ import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import ij.plugin.Grid;
-import ij.plugin.Selection;
 
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 
-import java.io.FileReader;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
 import java.util.Arrays;
@@ -30,32 +26,34 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.*;
 
-import static com.sun.java.accessibility.util.AWTEventMonitor.addKeyListener;
-
 public class custom_roiManager extends PlugInFrame implements ActionListener {
     private static final DecimalFormat df = new DecimalFormat("0.00");
     private final String PYTHONSCRIPT_PATH = "plugins/CalciumSignal/pythonscript";
-    private final String EDGE_DATA_PATH = "plugins/CalciumSignal/edge_data";
+
     Panel panel;
-    RoiManager rm;
+    RoiManager rm = RoiManager.getInstance();
     int cellMin;
     int cellMax;
     JFormattedTextField minField;
     JFormattedTextField maxField;
     Set<Roi> allRois = new HashSet<Roi>();
-    
+
+    // private static custom_roiManager; 
 
     custom_roiManager(){
         super("Custom RoiManager");
-        rm = new RoiManager();
+        if (rm == null){
+            rm = new RoiManager();
+
+            menu.createCellRoi(ResultsTable.getActiveTable(), rm);
+        }
+        
         cellMin = 20;
         cellMax = 200;
-
 
         ImageJ ij = IJ.getInstance();
         addKeyListener(ij);
         WindowManager.addWindow(this);
-        //setLayout(new FlowLayout(FlowLayout.CENTER,5,5));
         setLayout(new BorderLayout());
 
         panel = new Panel();
@@ -68,15 +66,11 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         addButton("Grid Suggestions");
         addButton("Create Grid");
         addButton("Undo [Cntrl + Shift + E]");
-
         add(panel);
 
         pack();
-        //list.delItem(0);
         GUI.center(this);
-        show();
-
-
+        setVisible(true);
     }
 
     void addTextFields(){
@@ -106,7 +100,6 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         panel.add((maxField));
 
         addButton("Update Cells");
-
     }
 
     void addButton(String label) {
@@ -122,7 +115,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
 
         cellMin = min;
         cellMax = max;
-        //allRois.clear();
+
         if(allRois.size() == 0) {
             Roi [] rois = rm.getRoisAsArray();
             allRois.addAll(Arrays.asList(rois));
@@ -130,9 +123,9 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         rm.close();
         RoiManager newRm = new RoiManager();
         rm = newRm;        
-
+        // Reset the rois on each update selection
         for(Roi roi: allRois){
-            //allRois.add(roi);
+            // Re-add selections based on if they fit within the bounds of the min/max calculations
             if (roi.getBounds().getHeight() >= min && roi.getBounds().getWidth() >= min && roi.getBounds().getWidth() <= max && roi.getBounds().getWidth() <= max){
                 addRoi(roi);
             }
@@ -168,51 +161,54 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         } else if (command.equals("RC 3 STD")) {
             setMinMax(3);
         } else if(command.equals("Grid Suggestions")) {
+            // Get the top image to find the width.
+            // Since the image is always a square, use this value the calculated constant to generate grid suggestions
             int[] idList = WindowManager.getIDList();
             ImagePlus img = WindowManager.getImage(idList[0]);
             double imgW = img.getWidth();
             double imgArea = Math.pow((imgW *1.24296875), 2);
             
-            IJ.showMessage("Grid Value Help", "Grid Area Values:\n3x3: "+ Math.round(imgArea / 9) +"\n4x4: " + Math.round(imgArea / 16));
+            IJ.showMessage("Grid Value Help", "Grid Area Values:\n3x3: "+ Math.round(imgArea / 9) +"\n5x5: " + Math.round(imgArea / 25));
         } else if(command.equals("Create Grid")) {
+            // Shortcut for the grid dialog window
+            // Replace the area value with the suggested values to get the desired grid
+            // NOTE: Centering grid from the dialog is hit or miss, workaround is to keep clicking the checkbox for "random offset"
+            // TODO: Find out how to indroduce actual centering
             Grid g = new Grid();
             g.run(null);
-        }else if(command.equals("Undo [Cntrl + Shift + E]")){
+        } else if(command.equals("Undo [Cntrl + Shift + E]")) {
             ImagePlus imp = new ImagePlus();
             imp = WindowManager.getCurrentImage();
             imp.restoreRoi();
         }
-    }
 
+    }
 
     public void addRoi(Roi roi){
         rm.addRoi(roi);
         rm.runCommand("Show All");
     }
 
-    public void setMinMax(int std) {
-        String path = EDGE_DATA_PATH + "/edgeDetectResults.csv";
 
-        String[] vals;
+    // public static custom_roiManager getManager(){
+    //     return this;
+    // }
+
+    public void setMinMax(int std) {
+
+        ResultsTable results = ResultsTable.getResultsTable();
+
+        double[] widths = results.getColumn("B-width");
+        double[] heights = results.getColumn("B-height");
+
         int total = 0;
         ArrayList<Double> nums = new ArrayList<Double>();
-        ArrayList<Double> hs = new ArrayList<Double>();
-        ArrayList<Double> ws = new ArrayList<Double>();
-        String line;
-        
-         try (BufferedReader br = new BufferedReader(new FileReader(path))) {
-             br.readLine();
-             while((line = br.readLine()) != null){
-                vals = line.split(",");
-                nums.add((Double.valueOf(vals[24]) + Double.valueOf(vals[25]))/ 2);
-                hs.add(Double.valueOf(vals[24]));
-                ws.add(Double.valueOf(vals[25]));
-                total += nums.get(nums.size() - 1);
-             }
-         } catch (Exception e){
-             System.out.println(e);
-         }
 
+        for(int i = 0; i < widths.length; i++) {
+            nums.add((widths[i] + heights[i])/ 2);
+            total += nums.get(nums.size() - 1);
+        }
+        // Calculate the min/max cell size from the mean and standard devitations
          double mean = total / (nums.size());
          double temp = 0;
 
@@ -234,7 +230,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             minField.setText(String.valueOf(minCell));
             maxField.setText(String.valueOf(maxCell));
        } else {
-
+            //Create histogram
             PlotWindow.noGridLines = false;
             Plot plot = new Plot("Outlier Analysis", "Cell Diameter", "Frequency");
             double [] numsList = new double[nums.size()];
@@ -243,7 +239,6 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
                 numsList[i] = Math.round(nums.get(i));
             }
             plot.addHistogram(numsList, 1);
-    
 
             plot.setLineWidth(5);
             plot.setColor(Color.BLACK);

@@ -11,13 +11,19 @@ import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import ij.plugin.Grid;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.text.NumberFormatter;
 
+import com.opencsv.CSVReader;
+
 import java.awt.*;
+import java.awt.List;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.text.DecimalFormat;
 import java.text.NumberFormat;
@@ -59,6 +65,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
         addButton("Grid Suggestions");
         addButton("Create Grid");
         addButton("Undo [Cntrl + Shift + E]");
+        addButton("Testing wavelet");
         add(panel);
 
         pack();
@@ -173,6 +180,8 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             ImagePlus imp = new ImagePlus();
             imp = WindowManager.getCurrentImage();
             imp.restoreRoi();
+        } else if(command.equals("Testing wavelet")) {
+            wavletDenoise();
         }
 
     }
@@ -180,6 +189,155 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     public void addRoi(Roi roi){
         rm.addRoi(roi);
         rm.runCommand("Show All");
+    }
+
+    public void wavletDenoise() {
+        ArrayList<Double> signal = new ArrayList<Double>();
+        ArrayList<Double> frames = new ArrayList<Double>();
+        ArrayList<Cell> cells = new ArrayList<>();
+
+        try {
+            ArrayList<String[]> lines = new ArrayList<String[]>();
+            String strFile = "C:/Users/Matthew/Desktop/graph_data.csv";
+            CSVReader reader = new CSVReader(new FileReader(strFile));
+            String [] nextLine;
+
+            while ((nextLine = reader.readNext()) != null) {
+                lines.add(nextLine);
+            }
+            // Convert CSV data into 2x2 array
+            String[][] array = new String[lines.size()][0];
+            lines.toArray(array);
+
+            // Generate number of frames
+            for(int i = 1; i < array[0].length; i++) {
+                frames.add(Double.parseDouble(array[i][0]));
+            }
+            double[] framesArr = new double[frames.size()];
+            for (int i = 0; i < framesArr.length; i++)
+                framesArr[i] = frames.get(i);
+            
+            for(int i = 1; i < (array.length) / 2; i++) {
+                if(array[0][i].equals("baseline")) break;
+                for(int j = 1; j < array[0].length; j++) {
+                    if(Double.parseDouble(array[j][i]) < 1)
+                        break;
+                    signal.add(Double.parseDouble(array[j][i]));
+                }
+                if(signal.size() != 0) {
+                    double[] signalArr = new double[signal.size()];
+                    for (int k = 0; k < signalArr.length ; k++)
+                        signalArr[k] = signal.get(k);
+                        generatePlot(framesArr, signalArr, i, cells);
+                }
+                signal.clear();
+            }
+            CellManager cm = new CellManager(cells);
+        } catch(IOException e) {
+            // ... handle errors ...
+        }
+
+
+
+    }
+    public static void generatePlot(double[] frames, double[] signal, int cellNumber, ArrayList<Cell> cells) {
+        Cell cell = new Cell();
+        cell.setSignal(signal);
+        cell.setFrames(frames);
+        cell.setCellNumber(cellNumber);
+        Plot plot = new Plot("Cell " + cellNumber, "Video Frame (#)", "Calcium Intensity");
+        plot.setColor(Color.BLACK);
+        plot.setLineWidth(2);
+        plot.add("line", frames, signal);
+        double[] n = normalize(signal);
+        plot.setColor(Color.RED);
+        plot.add("line", frames, n);
+        plot.setColor(Color.BLUE);
+        plot.setLineWidth(3);
+        findPeaks(n, frames, plot, cell);
+        cell.setNormalize(n);
+        cell.setPlot(plot);
+        cells.add(cell);
+
+    }
+    public static void findPeaks(double[] input, double[] xinput, Plot plot, Cell cell) {
+        ArrayList<Double> peaks = new ArrayList<>();
+        ArrayList<Double> xpeaks = new ArrayList<>();
+        for (int i = 1; i < input.length - 1; i++) {
+            if (input[i - 1] < input[i] && input[i] > input[i + 1]) {
+                peaks.add(input[i]);
+                xpeaks.add(xinput[i]);
+            }
+        }
+        //plot.addPoints(xpeaks, peaks, 0);
+
+        //peaks.clear();
+        //xpeaks.clear();
+        //plot.setColor(Color.GREEN);
+
+        for (int i = 1; i < input.length - 1; i++) {
+            if (input[i - 1] > input[i] && input[i] < input[i + 1]) {
+                peaks.add(input[i]);
+                xpeaks.add(xinput[i]);
+            }
+        }
+        plot.addPoints(xpeaks, peaks, 0);
+        
+        cell.setPeaks(peaks);
+        cell.setXPeaks(xpeaks);      
+        cell.arrangePoints();
+        plot.setFontSize(24);
+        plot.setColor(Color.BLUE);
+        for(int i = 0; i < xpeaks.size(); i++) {
+            plot.addText(String.valueOf(i),cell.getXPeaks().get(i), cell.getPeaks().get(i));
+        }
+        plot.setFontSize(12);
+
+        
+    
+    }
+    // https://stackoverflow.com/questions/59263100/how-to-easily-apply-a-gauss-filter-to-a-list-array-of-doubles
+    public static double[] normalize(double[] vals) {
+        double sigma= 6;
+        int kernelRadius = (int)Math.ceil( sigma * 2.57 ); // significant radius
+        double[] kernel = gaussianKernel1d( kernelRadius, sigma );
+        double[] result = filter( vals, kernel );
+        return result;
+    }
+
+    private static double[] gaussianKernel1d(int kernelRadius, double sigma) {
+        double[] kernel = new double[kernelRadius + 1 + kernelRadius];
+        for( int xx = -kernelRadius; xx <= kernelRadius; xx++ )
+            kernel[kernelRadius + xx] = Math.exp( -(xx * xx) / (2 * sigma * sigma) ) /
+                    (Math.PI * 2 * sigma * sigma);
+        return kernel;
+    }
+
+    static double[] filter( double[] array, double[] kernel ){
+        assert( kernel.length % 2 == 1 ); //kernel size must be odd.
+        int kernelRadius = kernel.length / 2;
+        int width  = array.length;
+        double[] result = new double[width];
+        for( int x = 0; x < width; x++ ) {
+            double sumOfValues  = 0;
+            double sumOfWeights = 0;
+            for( int i = -kernelRadius; i <= kernelRadius; i++ ) {
+                double value = array[clamp( x + i, 0, width - 1 )];
+                double weight = kernel[kernelRadius + i];
+                sumOfValues  += value * weight;
+                sumOfWeights += weight;
+            }
+            result[x] = sumOfValues / sumOfWeights;
+        }
+        return result;
+    }
+
+    private static int clamp( int value, int min, int max ) {
+        if( value < min )
+            return min;
+        if( value > max )
+            return max;
+        return value;
     }
 
     public void setMinMax(int std) {
