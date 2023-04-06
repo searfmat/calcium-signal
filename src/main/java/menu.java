@@ -69,6 +69,7 @@ import java.text.NumberFormat;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.Executor;
 import java.util.*;
 
 
@@ -292,19 +293,16 @@ public class menu extends PlugInFrame implements ActionListener {
                 rm.runCommand("Show All");
                 }   
         } else if (command.equals("Generate Charts")){
-            System.out.println("Running MM");
-            rm.runCommand("multi-measure");
-            System.out.println("Finished MM");
 
-            ResultsTable results = ij.measure.ResultsTable.getResultsTable();
-            //System.out.println(results);
-            wavletDenoise(results);
-            for(String s : results.getHeadings()) {
-                if(s.contains("Mean"))
-                    System.out.println(s);
-            }
-            //rm.close();
-            //setVisible(false);
+            new SwingWorker<Void, Void>() {
+                protected Void doInBackground() {
+                    rm.runCommand("multi-measure");
+                    ResultsTable results = ij.measure.ResultsTable.getResultsTable();
+                    wavletDenoise(results);
+                  return null;
+                }
+             }.execute();
+           
         } 
          
         else if (command == "Save ROI set as...") {
