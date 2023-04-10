@@ -1,14 +1,16 @@
-import ij.ImagePlus;
-import ij.gui.Plot;
-import java.util.*;
-import java.util.Map.Entry;
-
-import javax.imageio.ImageIO;
-
-import java.awt.*;
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.TreeMap;
+
+import javax.imageio.ImageIO;
+
+import ij.ImagePlus;
+import ij.gui.Plot;
 
 public class Cell {
     int cellNumber;
@@ -127,11 +129,11 @@ public class Cell {
 
     }
 
-    public void writegraph() {
+    public void writegraph(File f) {
         ImagePlus ipPlot = this.plot.getImagePlus();
         BufferedImage bufferedPlot = ipPlot.getBufferedImage();
         try {
-            File outputfile = new File("C:/Users/Matthew/Desktop/TestCells/Cell" + cellNumber + ".png");
+            File outputfile = new File(f.toPath() + File.separator + "Cell" + cellNumber + ".png");
             ImageIO.write(bufferedPlot, "png", outputfile);
         } catch (IOException e) {
             System.out.println("Failed to write image file");
