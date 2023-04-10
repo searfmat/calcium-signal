@@ -368,8 +368,10 @@ public class menu extends PlugInFrame implements ActionListener {
 
             if (WindowManager.getActiveTable() == null){
                 ResultsTable results = ResultsTable.getResultsTable();
-                results.show("Results");
                 //System.out.println();
+            }
+            else {
+                WindowManager.toFront(WindowManager.getActiveTable());
             }
         }
         else if (command == "Save Results") {
