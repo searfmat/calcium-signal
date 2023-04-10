@@ -241,6 +241,7 @@ public class menu extends PlugInFrame implements ActionListener {
             btnSaveResults.setEnabled(true);
             btnSetMeasurements.setEnabled(true);
             btnApplyRoi.setEnabled(true);
+            btnGenerateChrats.setEnabled(true);
         }
         else if (command == "Custom RoiManager") {
             Window crm_window = WindowManager.getFrame("Custom RoiManager");
