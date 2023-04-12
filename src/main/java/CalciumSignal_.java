@@ -13,7 +13,7 @@ public class CalciumSignal_ implements PlugIn {
 
     public void run(String arg) {
 
-        IJ.showMessage("Calcium Signal", "Welcome to the Calcium Signal plugin!");
+        // IJ.showMessage("Calcium Signal", "Welcome to the Calcium Signal plugin!");
         // Frame roiWindow = WindowManager.getCurrentWindow();
 
         /*

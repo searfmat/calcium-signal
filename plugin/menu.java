@@ -81,6 +81,7 @@ public class menu extends PlugInFrame implements ActionListener {
     Frame customRoiManager;
     RoiManager rm;
     ImagePlus active_video;
+    Window active_video_window;
 
     Button btnMakeCopy = new Button();
     Button btnRegistration = new Button();
@@ -214,11 +215,16 @@ public class menu extends PlugInFrame implements ActionListener {
             
             for (int id : idList) {
             active_video = WindowManager.getImage(id);
+            String[] titles = WindowManager.getImageTitles();
+            active_video_window = WindowManager.getWindow(titles[titles.length-1]);
+            System.out.println("****");
+            System.out.println(titles[titles.length-1]);
+            System.out.println(titles[0]);
+            System.out.println("****");
             WindowManager.setTempCurrentImage(active_video);
             reg.run("run");
 
             IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
-            IJ.run("Enhance Contrast", "saturated=4 normalize");
             IJ.run("Duplicate...","title=post-reg");
 
             btnThreshold.setEnabled(true);
@@ -307,6 +313,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
             new SwingWorker<Void, Void>() {
                 protected Void doInBackground() {
+                    WindowManager.setTempCurrentImage(active_video);
                     rm.runCommand("multi-measure");
                     ResultsTable results = ij.measure.ResultsTable.getResultsTable();
                     wavletDenoise(results);
