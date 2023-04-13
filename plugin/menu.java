@@ -223,12 +223,9 @@ public class menu extends PlugInFrame implements ActionListener {
             System.out.println("****");
             WindowManager.setTempCurrentImage(active_video);
             reg.run("run");
-
             IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
-            IJ.run("Duplicate...","title=post-reg");
 
             btnThreshold.setEnabled(true);
-
             }
         }
         else if (command == "Threshold Setting") {
@@ -345,6 +342,14 @@ public class menu extends PlugInFrame implements ActionListener {
         }
         else if (command == "Input ROI set") {
             rm = RoiManager.getInstance();
+
+            if (rm==null){
+                rm = new RoiManager();
+            }
+            if (results==null){
+                results = new ResultsTable();
+            }
+
             Roi[] rois = rm.getRoisAsArray();
             
             if (rois.length > 0){
@@ -423,9 +428,14 @@ public class menu extends PlugInFrame implements ActionListener {
         else if (command == "Show Results Table"){
 
             if (WindowManager.getActiveTable() == null){
-                ResultsTable results = ResultsTable.getResultsTable();
+                results = new ResultsTable();
+                results.updateResults();
                 //System.out.println();
             }
+            if (RoiManager.getInstance()!=null){
+                rm.runCommand("Measure");
+            }
+            
             else {
                 WindowManager.toFront(WindowManager.getActiveTable());
             }
