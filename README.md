@@ -4,7 +4,7 @@
 ## Install
 
 The target platform for this project is Windows 10. We have made it available for MacOS and Linux as well, but extra steps may have to be performed to get things working.
-1. From the **release** folder on the github, download **CalciumSignal.jar**
+1. From the **release** folder on the GitHub, download **CalciumSignal.jar**
 2. Inside of the Fiji.app folder, navigate to plugins
 3. Move or copy the **CalciumSignal.jar** file into the folder 
 
@@ -16,11 +16,15 @@ After launching Fiji, navigate to File -> Open, and open image of choice. Then n
 
 Running Calcium Signal without an image uploaded to Fiji will prevent it from starting.
 
-Allow a few moments for the image registration and edge detection to complete. Then, make corrections as needed in the ROI Manager dialogue.
+After clicking Run Calcium Signal, a menu will display with multiple options.
 
-After running multi-measure, the peak analysis phase will begin. You will find the peak analysis outputs in Fiji.app/plugins/CalciumSignal/pythonscript/cell_data.
+### Menu
+<img src="https://github.com/jstith09/calcium/blob/main/firstmenu.jpg" width="200" height="350">
 
-<img src="https://github.com/jstith09/CISC498Project-Group17/blob/main/welcome.png" width="350" height="150">
+
+- Most options will be dimmed because they are not to be used yet
+- Click ***Registration*** to register the image that you have opened
+- The ***PoorMan3dReg*** window will appear as below
 
 ### PoorMan3DReg
 <img src="https://github.com/jstith09/calcium/blob/main/poorman.jpg" width="200" height="150">
@@ -42,6 +46,12 @@ After running multi-measure, the peak analysis phase will begin. You will find t
       - Uses the maximum value of the voxels
     - Sum Slices
       - Averages between the individual slices of voxels
+
+
+------
+
+- ***Next***, you will want to set the threshold settings
+- Click the ***Threshold Setting*** button in the ***Menu*** to open up the ***Cell Detector*** window below
  
 ### Cell Detector
 <img src="https://github.com/jstith09/CISC498Project-Group17/blob/main/celldetector.jpg" width="200" height="200">
@@ -52,6 +62,33 @@ After running multi-measure, the peak analysis phase will begin. You will find t
     - Min and Max size of circles drawn. Can be left as is.
   - ***Exclude objects on edges:*** Checked (Default)
 
+
+Allow a few moments for the image registration and edge detection to complete. Then, make corrections as needed in the ROI Manager dialogue.
+
+After running multi-measure, the peak analysis phase will begin. You will find the peak analysis outputs in Fiji.app/plugins/CalciumSignal/pythonscript/cell_data.
+
+------
+
+***Now all of the buttons in the menu should not be dimmed anymore and are available to interact with***
+
+***Below the windows will show you what is displayed by interacting with the following buttons in the menu:***
+ 
+***Make a Copy*** - displays a copy of the current window
+
+***Save ROI set as..*** - save ROI to your local device
+
+***Input ROI set*** - input a saved ROI set from your local device
+
+***Apply ROI to video*** - applies the inputed 
+
+***Set Measurements*** - set the measurements you would like displayed in results table
+
+***Show Results Table*** - displays the result table if it is not open
+
+***Save Results*** - saves the results from the result table
+
+***Generate Charts*** - runs ***Multi Measure*** (see bottom of page) and allows you to generate plots for each of the cells
+
 ## Windows
 
 ### Image Window
@@ -61,9 +98,6 @@ After running multi-measure, the peak analysis phase will begin. You will find t
   - Detected cells are circled in yellow (ROI)
   - Select the ROI by clicking on them
   - Selected ROI will appear in Roi Manager where you are able to add/delete/rename them
-
-
-***NEED TO IMPLEMENT/UPDATE PICTURE***
 
 ### Custom Roi Manager
 <img src="https://github.com/jstith09/CISC498Project-Group17/blob/main/customroimanager.jpg">
@@ -92,8 +126,6 @@ After running multi-measure, the peak analysis phase will begin. You will find t
   - ***Delete:*** Deletes the selected item from the list, if nothing is selected, will prompt the user if they wish to delete the entire list.
   - ***Rename:*** Prompts the user to rename the selected item in the list.
   - ***Measure:*** Upon clicking, brings up a new "Results" window, stating the number, mean, minimum, and maximum of the original selection on the image.
-<img src="https://github.com/jstith09/CISC498Project-Group17/blob/main/bc6c2b810fab817679cd3362378b3d71.png" width="150" height="150">
-
   - ***Deselect:*** Deselects the current selection in the group, clicking it while nothing is selected will do nothing.
   - ***Properties:*** Opens up a new tab of the current selection, giving ways to edit the selection
     - ***Name/Range*** Shows the name and allows the user to change it
@@ -105,6 +137,35 @@ After running multi-measure, the peak analysis phase will begin. You will find t
   - ***Flatten:*** Creates a new RGB image that has the overlay rendered as pixel data.
   - ***More>>:*** ETC.
 
+### Multi Measure
+<img src="https://github.com/jstith09/calcium/blob/main/multimeasure.jpg" width="200" height="200">
+
+- Check the appropriate boxes and then click ***Ok***. This will take a moment to process
+- Once it is done, a ***Cell Manager*** window will be displayed
+
+### Cell Manager
+<img src="https://github.com/jstith09/calcium/blob/main/cellmanager.jpg" width="200" height="200">
+
+- This window displays all of the cells
+- ***Generate All Plots*** will allow you save the plots for all the cells to your local machine
+- Click on a cell and then click ***Open Cell*** to display a plot such as the one below
+
+### Plot
+<img src="https://github.com/jstith09/calcium/blob/main/cellchart.jpg" width="400" height="250">
+
+- This chart displays how the intensity of the cell changes throughout the video
+- The ***List*** button displayes the information about the cells intensity in each video frame
+- The ***Data*** button gives you multiple options to export and interact with the plot
+- The ***More*** button will give you more options to explore the plot
+- The peaks of intensity are shown by the blue circles which are numbered
+- These peaks can be deleted using the ***Peak Manager*** which is displayed at the same time
+
+### Peak Manager
+<img src="https://github.com/jstith09/calcium/blob/main/cellpeaks.jpg" width="150" height="200">
+
+- Select cell and click ***Delete Peak***, to remove it from the peaks
+
+-----
 ## Credits
 
 ***Plugins:***
