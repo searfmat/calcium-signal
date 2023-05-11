@@ -4,7 +4,7 @@
 ## Install
 
 The target platform for this project is Windows 10. We have made it available for MacOS and Linux as well, but extra steps may have to be performed to get things working.
-1. From the **release** folder on the GitHub, download **CalciumSignal.jar**
+1. From the **releases** on GitHub, download **CalciumSignal.jar**
 2. Inside of the Fiji.app folder, navigate to plugins
 3. Move or copy the **CalciumSignal.jar** file into the folder 
 
