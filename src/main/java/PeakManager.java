@@ -7,6 +7,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.ArrayList;
 
 public class PeakManager extends PlugInFrame implements ActionListener {
 
@@ -72,25 +73,27 @@ public class PeakManager extends PlugInFrame implements ActionListener {
         String command = e.getActionCommand();
 
         if (command == "Delete Peak") {
-            String selected = list.getSelectedValue().toString();
-
-            System.out.println(selected);
+            int[] selections = list.getSelectedIndices();
+            ArrayList<Double> peaksRemove = new ArrayList<>();
+            ArrayList<Double> xpeaksRemove = new ArrayList<>();
             IJ.selectWindow(cell.toString());
             IJ.runMacro("Close", cell.toString());
-
-            for(int i = 0; i < cell.getPeaks().size(); i++) {
-                if(peakNames[i].equals(selected)) {
-                    System.out.println("Removed peak " + i + " Expected " + selected);
-                    System.out.println("Removed peak " + cell.peaks.get(i));
-                    cell.peaks.remove(i);
-                    cell.xpeaks.remove(i);
-                    break;
+            for (int j : selections) {
+                String selected = list.getModel().getElementAt(j).toString();
+                for (int i = cell.getPeaks().size() - 1; i >= 0; i--) {
+                    if (peakNames[i].equals(selected)) {
+                        peaksRemove.add(cell.peaks.get(i));
+                        xpeaksRemove.add(cell.xpeaks.get(i));
+                    }
                 }
-            }
 
+            }
+            cell.peaks.removeAll(peaksRemove);
+            cell.xpeaks.removeAll(xpeaksRemove);
             cell.generateNewPlot(true);
             cell.gePlot().show();
             PeakManager pm = new PeakManager(cell);
+            pm.setLocation(247,190);
             close();
             
         } 

@@ -51,6 +51,7 @@ public class CellManager extends PlugInFrame implements ActionListener {
         panel.add(new JScrollPane(list));
         addButton("Open Cell", false);
         addButton("Generate All Plots", false);
+        addButton("Generate CSV", false);
 
         add(panel);
 
@@ -79,6 +80,7 @@ public class CellManager extends PlugInFrame implements ActionListener {
             for (int i = 0; i < cells.size(); i++) {
                 if (cells.get(i).toString().equals(selected)) {
                     PeakManager pm = new PeakManager(cells.get(i));
+                    pm.setLocation(247,190);
                     break;
                 }
             }
@@ -95,6 +97,19 @@ public class CellManager extends PlugInFrame implements ActionListener {
                 cells.get(i).generateNewPlot(false);
                 cells.get(i).writegraph(folder);
             }
+            try {
+                generateCSV(folder);
+            } catch (IOException e1) {
+                e1.printStackTrace();
+            }
+        } else if (command == "Generate CSV") {
+            JFileChooser chooser = new JFileChooser();
+            chooser.setCurrentDirectory(new java.io.File("."));
+            chooser.setDialogTitle("Select Folder");
+            chooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            chooser.setAcceptAllFileFilterUsed(false);
+            chooser.showOpenDialog(null);
+            File folder = chooser.getSelectedFile();
             try {
                 generateCSV(folder);
             } catch (IOException e1) {

@@ -10,11 +10,6 @@ import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.BufferedReader;
 import java.io.FileReader;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JFileChooser;
@@ -33,44 +28,13 @@ import ij.measure.ResultsTable;
 import ij.plugin.frame.PlugInFrame;
 import ij.plugin.frame.RoiManager;
 import imageJ.plugins.PoorMan3DReg_;
+import imageJ.plugins.TurboReg_;
+import imageJ.plugins.Grouped_ZProjector;
 
-import java.util.Arrays;
 import java.util.ArrayList;
-import java.util.List;
-
-import ij.IJ;
-import ij.ImageJ;
-import ij.ImagePlus;
-import ij.WindowManager;
-import ij.gui.GUI;
 import ij.gui.Plot;
-import ij.gui.PlotWindow;
-import ij.gui.Roi;
-import ij.measure.ResultsTable;
-import ij.plugin.frame.PlugInFrame;
-import ij.plugin.frame.RoiManager;
-import ij.plugin.Grid;
-
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.swing.text.NumberFormatter;
-
-import com.opencsv.CSVReader;
-
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.image.BufferedImage;
-import java.io.File;
-import java.io.FileReader;
-import java.io.IOException;
-import java.text.DecimalFormat;
-import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.*;
 
 
 public class menu extends PlugInFrame implements ActionListener {
@@ -107,11 +71,7 @@ public class menu extends PlugInFrame implements ActionListener {
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
         Font font = new Font("Verdana", Font.BOLD, 16);
 
-        // panel.setSize(600, 400);
-        
-
         panel.add(Box.createHorizontalStrut(200));
-        // panel.setSize(700, 600);
 
         addButton("Make a Copy", true, btnMakeCopy);
         addButton("Registration", true, btnRegistration);
@@ -120,7 +80,7 @@ public class menu extends PlugInFrame implements ActionListener {
         cellDetectionLabel.setFont(font);
         panel.add(cellDetectionLabel);
         addButton("Threshold Setting", false, btnThreshold);
-        addButton("Custom RoiManager", false, btnCustomRoi);
+        addButton("Detection Parameters", false, btnCustomRoi);
         addButton("ROI Manager", false, btnRoiManager);
         addButton("Save ROI set as...", false, btnSaveRoi);
         addButton("Input ROI set", true, btnInputRoi);
@@ -133,16 +93,8 @@ public class menu extends PlugInFrame implements ActionListener {
         addButton("Show Results Table", false, btnShowResults);
         addButton("Save Results", false, btnSaveResults);
     
-        addButton("Generate Charts", false, btnGenerateChrats);
+        addButton("Peak Finding", false, btnGenerateChrats);
         add(panel);
-
-        // if (this.crm_window == null){
-        //     this.customRoiManager = new custom_roiManager();
-        // }
-        // else{
-        //     this.customRoiManager = WindowManager.getFrame("Custom RoiManager");
-        // }
-
         pack();
         GUI.center(this);
         setVisible(true);
@@ -150,6 +102,7 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     void addButton(String label, boolean isEnabled, Button newButton) {
+        // Allows easier button adding
         newButton.setLabel(label);
         newButton.setMaximumSize(new Dimension(200, 350));
         newButton.addActionListener(this);
@@ -160,8 +113,6 @@ public class menu extends PlugInFrame implements ActionListener {
 
     public static void createCellRoi(ResultsTable results, RoiManager rm){
 
-        //if (crm == null){crm = new custom_roiManager();}
-        System.out.println(rm);
         //Vars
         double x;
         double y;
@@ -170,7 +121,6 @@ public class menu extends PlugInFrame implements ActionListener {
         int cornerDiameter = 20;
         System.out.println("CREATE CELL ROI");
         System.out.println(results);
-        //ResultsTable results = ResultsTable.getResultsTable();
 
         double[] widths = results.getColumn("B-width");
         double[] heights = results.getColumn("B-height");
@@ -194,40 +144,58 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     @Override   
-    public void actionPerformed(ActionEvent e) {
-        String command = e.getActionCommand();
+    public void actionPerformed(ActionEvent event) {
+
+        // Listens for button preses and calls the corresponding functions
+
+        String command = event.getActionCommand();
         _3D_objects_counter counter = new _3D_objects_counter();
         PoorMan3DReg_ reg = new PoorMan3DReg_();
 
         if (command == "Make a Copy") {
             // ImagePlus img = WindowManager.getImage("post-reg");
-            IJ.run("Duplicate...","title=Copy");
+            try{
+                IJ.run("Duplicate...");
+            }
+            catch(Exception e){
+                System.out.println(e);
+            }
         } 
         else if (command == "Registration") {
 
             int imageCount = WindowManager.getImageCount();
-            int[] idList = WindowManager.getIDList();
+            
 
             if (imageCount < 1) {
-            IJ.showMessage("Calcium Signal", "No image found.");
+                IJ.showMessage("Calcium Signal", "No image found.");
             return;
             }
             
-            for (int id : idList) {
-            active_video = WindowManager.getImage(id);
-            String[] titles = WindowManager.getImageTitles();
-            active_video_window = WindowManager.getWindow(titles[titles.length-1]);
-            System.out.println("****");
-            System.out.println(titles[titles.length-1]);
-            System.out.println(titles[0]);
-            System.out.println("****");
-            WindowManager.setTempCurrentImage(active_video);
-            reg.run("run");
-            IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
+            new SwingWorker<Void, Void>() {
+                protected Void doInBackground() {
+                    PoorMan3DReg_ reg = new PoorMan3DReg_();
+                    Grouped_ZProjector z_proj = new Grouped_ZProjector();
+                    int[] idList = WindowManager.getIDList();
+                    for (int id : idList) {
+                    active_video = WindowManager.getImage(id);
+                    String[] titles = WindowManager.getImageTitles();
+                    active_video_window = WindowManager.getWindow(titles[titles.length-1]);
+                    System.out.println(idList.length);
+                    WindowManager.setTempCurrentImage(active_video);
+                    reg.run("run");
+                    // z_proj.run("run");
+                    // IJ.run("Z Project...", "projection=[Max Intensity] title=Max");
+
+                }
+                return null;
+                }
+             }.execute();
+
+            
 
             btnThreshold.setEnabled(true);
             }
-        }
+
         else if (command == "Threshold Setting") {
             counter.run("run");
             results = ResultsTable.getActiveTable();
@@ -246,67 +214,37 @@ public class menu extends PlugInFrame implements ActionListener {
             btnApplyRoi.setEnabled(true);
             btnGenerateChrats.setEnabled(true);
         }
-        else if (command == "Custom RoiManager") {
+
+        else if (command == "Detection Parameters") {
             Window crm_window = WindowManager.getFrame("Custom RoiManager");
             if (crm_window == null){
                 customRoiManager = new custom_roiManager();
-
-                // custom_roiManager.createCellRoi(this.results, this.customRoiManager);
-
-                    //Add Roi to RoiManager
-                    //this.customRoiManager.addRoi(roi);
                 }
             else {
                 // bring to front
                 WindowManager.toFront(crm_window);
+                Window[] wins = WindowManager.getAllNonImageWindows();
+                for (Window w : wins){
+                    System.out.println(w);
+                }
             }
             
         }
-            
         
         else if (command == "ROI Manager") {
             RoiManager rm = RoiManager.getInstance();
-            // Window[] wins = WindowManager.getAllNonImageWindows();
-            // for (Window w : wins){
-            //     System.out.println(w);
-            // }
             if (rm == null){
-
-                // double x;
-                // double y;
-                // double width;
-                // double height;
-                // int cornerDiameter = 20;
-
                 rm = RoiManager.getRoiManager();
-                
-                // double[] widths = this.results.getColumn("B-width");
-                // double[] heights = this.results.getColumn("B-height");
-                // double[] xs = this.results.getColumn("X");
-                // double[] ys = this.results.getColumn("Y");       
-                // this.results = ResultsTable.getActiveTable();
                 menu.createCellRoi(results, rm);
-                // for(int i = 0; i < widths.length; i++) {
 
-                // // This is used to make sure we have x and y at the center of the detected region
-                // width = widths[i];
-                // height = heights[i];
-                // x = xs[i] - width/2 ;
-                // y = ys[i] - height/2;
-
-                // //Create ROI with Input: int x, int y, int width, int height, int cornerDiameter
-                // Roi roi = new Roi((int)x, (int)y, (int)width, (int)height, cornerDiameter);
-
-                // //Add Roi to RoiManager
-                // rm.addRoi(roi);
-                // rm.runCommand("Show All");
-            
                 }  
-                else {
+            else {
                 WindowManager.toFront(rm);
                 rm.runCommand("Show All");
-                }   
-        } else if (command.equals("Generate Charts")){
+            }   
+        } 
+        
+        else if (command.equals("Peak Finding")){
 
             new SwingWorker<Void, Void>() {
                 protected Void doInBackground() {
@@ -338,8 +276,8 @@ public class menu extends PlugInFrame implements ActionListener {
                     results.save(fileName + ".roi");
                 }
             }
-
         }
+
         else if (command == "Input ROI set") {
             rm = RoiManager.getInstance();
 
@@ -358,13 +296,7 @@ public class menu extends PlugInFrame implements ActionListener {
 
             JFileChooser fileChooser = new JFileChooser();
 
-            
-            // rm.open();
-
-            // FileFilter roiFilter = new FileNameExtensionFilter("ROI file", ".roi");
-            // fileChooser.setFileFilter(roiFilter);
             fileChooser.setDialogTitle("Select ROI File");
-            // fileChooser.setAcceptAllFileFilterUsed(false);
 
             int returnVal = fileChooser.showOpenDialog(fileChooser);
 
@@ -375,19 +307,15 @@ public class menu extends PlugInFrame implements ActionListener {
                     File file = fileChooser.getSelectedFile();
                     try{
                         String line;
-                        ArrayList<ArrayList<String>> roi_data = new ArrayList<ArrayList<String>>();  
                         br = new BufferedReader(new FileReader(file));
 
-                        // System.out.println(results.hdr);
                         results.reset();
                         results.updateResults();
                         String str_headings = br.readLine();
                         String[] headings = str_headings.split("\t");
 
                         while ((line = br.readLine()) != null){
-                            // System.out.println(line);
                             String[] values = line.split("\t");
-                            // roi_data.add(new ArrayList<String>(Arrays.asList(values)));
                             results.addRow();
                             for (int i=2; i<headings.length; i+=1){
                                 results.addValue(headings[i], Double.parseDouble(values[i]));
@@ -396,26 +324,24 @@ public class menu extends PlugInFrame implements ActionListener {
                             results.updateResults();
                             System.out.println(results.size());
                         }
-                        
                         createCellRoi(results, rm);
                     }           
                     catch(Exception ex){System.out.println(ex);}
-                    
-
                 }
                 else {
-                    System.out.println("NOT AN ROI FILE");
+                    IJ.showMessage("Error", "NOT AN ROI FILE");
                 }
             }
         }
+        
         else if (command == "Apply ROI to video") {
             Overlay overlay = active_video.getOverlay();
             if (overlay != null){
                 overlay.clear();
             }
             rm.moveRoisToOverlay(active_video);
-
         }
+       
         else if (command == "Set Measurements") {
             // Buggy
             try{
@@ -425,12 +351,12 @@ public class menu extends PlugInFrame implements ActionListener {
                 System.out.println(ex);
             }
         }
+        
         else if (command == "Show Results Table"){
 
             if (WindowManager.getActiveTable() == null){
                 results = new ResultsTable();
                 results.updateResults();
-                //System.out.println();
             }
             if (RoiManager.getInstance()!=null){
                 rm.runCommand("Measure");
@@ -440,6 +366,7 @@ public class menu extends PlugInFrame implements ActionListener {
                 WindowManager.toFront(WindowManager.getActiveTable());
             }
         }
+        
         else if (command == "Save Results") {
             if (WindowManager.getActiveTable() == null) {
                 IJ.showMessage("No results table found");
@@ -467,7 +394,6 @@ public class menu extends PlugInFrame implements ActionListener {
     }
 
     public void wavletDenoise(ResultsTable results) {
-        //ArrayList<Double> signal = new ArrayList<Double>();
         ArrayList<Double> frames = new ArrayList<Double>();
         ArrayList<Cell> cells = new ArrayList<>();
         // Establish frames
@@ -487,7 +413,8 @@ public class menu extends PlugInFrame implements ActionListener {
                 cellCounter++;
             }
         }
-       new CellManager(cells);
+       CellManager cm = new CellManager(cells);
+    //    cm.setLocation(100,350); // Use this if you want to set a default location for the Cell Manager Window
 
     }
     public static void generatePlot(double[] frames, double[] signal, int cellNumber, ArrayList<Cell> cells) {
@@ -530,7 +457,7 @@ public class menu extends PlugInFrame implements ActionListener {
         cell.setXPeaks(xpeaks);      
         cell.arrangePoints();
         plot.setFontSize(24);
-        plot.setColor(Color.BLUE);
+        plot.setColor(new Color(4, 138, 26));
         for(int i = 0; i < xpeaks.size(); i++) {
             plot.addText(String.valueOf(i),cell.getXPeaks().get(i), cell.getPeaks().get(i));
         }
@@ -581,5 +508,4 @@ public class menu extends PlugInFrame implements ActionListener {
             return max;
         return value;
     }
-
 }

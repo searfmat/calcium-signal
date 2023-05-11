@@ -94,7 +94,7 @@ public class Cell {
 
         if(showlabels) {
             plot.setFontSize(24);
-            plot.setColor(Color.BLUE);
+            plot.setColor(new Color(4, 138, 26));
             for(int i = 0; i < this.xpeaks.size(); i++) {
                 plot.addText(String.valueOf(i),this.getXPeaks().get(i), this.getPeaks().get(i));
             }

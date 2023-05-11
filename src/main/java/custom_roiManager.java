@@ -101,17 +101,19 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
     void updateCellSize(String minSize, String maxSize){
         int min = Integer.parseInt(minSize);
         int max = Integer.parseInt(maxSize);
-
+        rm = RoiManager.getInstance();
         cellMin = min;
         cellMax = max;
-
+        
         if(allRois.size() == 0) {
             Roi [] rois = rm.getRoisAsArray();
             allRois.addAll(Arrays.asList(rois));
+        }        
+
+        if (rm != null){
+            rm.reset();
         }
-        rm.close();
-        RoiManager newRm = new RoiManager();
-        rm = newRm;        
+        
         // Reset the rois on each update selection
         for(Roi roi: allRois){
             // Re-add selections based on if they fit within the bounds of the min/max calculations
@@ -142,7 +144,7 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             double imgW = img.getWidth();
             double imgArea = Math.pow((imgW *1.24296875), 2);
             
-            IJ.showMessage("Grid Value Help", "Grid Area Values:\n3x3: "+ Math.round(imgArea / 9) +"\n5x5: " + Math.round(imgArea / 25));
+         IJ.showMessage("Grid Value Help", "Grid Area Values:\n3x3: "+ (Math.round(imgArea / 9) -1)  +"\n5x5: " + (Math.round(imgArea / 25)-1));
         } else if(command.equals("Create Grid")) {
             // Shortcut for the grid dialog window
             // Replace the area value with the suggested values to get the desired grid
@@ -151,9 +153,21 @@ public class custom_roiManager extends PlugInFrame implements ActionListener {
             Grid g = new Grid();
             g.run(null);
         } else if(command.equals("Undo [Cntrl + Shift + E]")) {
-            ImagePlus imp = new ImagePlus();
-            imp = WindowManager.getCurrentImage();
-            imp.restoreRoi();
+            // ImagePlus imp = new ImagePlus();
+            // imp = WindowManager.getCurrentImage();
+            // imp.restoreRoi();
+            if (rm != null){
+            rm.reset();
+                }
+
+            for(Roi roi: allRois){
+            // Re-add selections based on if they fit within the bounds of the min/max calculations
+            // if (roi.getBounds().getHeight() >= min && roi.getBounds().getWidth() >= min && roi.getBounds().getWidth() <= max && roi.getBounds().getWidth() <= max){
+                addRoi(roi);
+            // }
+        }
+
+
         }
     }
 
